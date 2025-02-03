@@ -29,17 +29,31 @@ createApp({
                 message: '',
                 type: 'success'
             },
-            toast: null
+            toast: null,
+            username: ''
         }
     },
-    mounted() {
+    async mounted() {
         this.toast = new bootstrap.Toast(this.$refs.toast, {
             delay: 4000, // Increased display time
             animation: true,
             autohide: true
         });
+        await this.checkSession();
     },
     methods: {
+        async checkSession() {
+            try {
+                const response = await fetch('auth/check_session.php');
+                const data = await response.json();
+                if (data.success && data.isLoggedIn) {
+                    this.isLoggedIn = true;
+                    this.username = data.username;
+                }
+            } catch (error) {
+                console.error('Session check error:', error);
+            }
+        },
         showNotification(message, type = 'success') {
             this.notification.message = message;
             this.notification.type = type;
@@ -103,8 +117,19 @@ createApp({
                 this.showNotification('An error occurred during registration', 'error');
             }
         },
-        logout() {
-            this.isLoggedIn = false;
+        async logout() {
+            try {
+                const response = await fetch('auth/logout.php');
+                const data = await response.json();
+                if (data.success) {
+                    this.isLoggedIn = false;
+                    this.username = '';
+                    this.showNotification(data.message, 'success');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                this.showNotification('An error occurred during logout', 'error');
+            }
         },
         playGame(gameId) {
             if (!this.isLoggedIn) {
