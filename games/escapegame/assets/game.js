@@ -3,53 +3,73 @@ const { createApp } = Vue;
 createApp({
     data() {
         return {
-            timeLeft: 600, // 10 minutes in seconds
+            timeLeft: 1800, // 30 minutes
             inventory: [],
-            currentRoomId: 'start',
-            gameOver: false,
-            gameOverTitle: '',
-            gameOverMessage: '',
+            currentRoomId: 'awakening',
+            examiningItem: null,
+            stats: {
+                health: 65,
+                energy: 80,
+                hasArm: false,
+                hasLeg: false
+            },
             rooms: {
-                start: {
-                    name: 'Control Room',
-                    description: 'You wake up in the control room of a space station. Emergency lights are flashing. The station\'s AI announces: "Warning: Station critical failure. Evacuation required."',
+                awakening: {
+                    name: 'Illegal Cyberclinic',
+                    image: 'clinic.jpg',
+                    description: `You wake up in a dingy cyberclinic. Your right arm and left leg are missing. The last thing you remember is being attacked in the neon streets of Neo-Tokyo. A flickering hologram message reads: "Payment overdue - cybernetic limbs repossessed. Exit quarantine when ready."`,
                     items: [
-                        { id: 'keycard', name: 'Keycard', description: 'A security keycard' },
-                        { id: 'tablet', name: 'Tablet', description: 'A damaged tablet showing station schematics' }
+                        { id: 'datapad', name: 'Corrupted Datapad', image: 'datapad.jpg', description: 'A damaged datapad containing fragmentary clinic records.' },
+                        { id: 'syringe', name: 'Stim Syringe', image: 'syringe.jpg', description: 'A medical stimulant that could temporarily boost your system.' }
                     ],
                     exits: [
-                        { to: 'corridor', label: 'Enter Corridor' }
+                        { to: 'corridor', label: 'Leave Clinic Room' }
                     ]
                 },
                 corridor: {
-                    name: 'Main Corridor',
-                    description: 'A long corridor with flickering lights. You can hear the hum of failing life support systems.',
+                    name: 'Maintenance Corridor',
+                    image: 'corridor.jpg',
+                    description: 'A narrow service corridor lit by malfunctioning neon tubes. You can hear mechanical whirring from the storage room.',
                     items: [
-                        { id: 'oxygen', name: 'Oxygen Tank', description: 'Emergency oxygen supply' }
+                        { id: 'keycard', name: 'Security Keycard', image: 'keycard.jpg', description: 'A high-level security keycard with Corp markings.' }
                     ],
                     exits: [
-                        { to: 'start', label: 'Back to Control Room' },
-                        { to: 'lab', label: 'Enter Lab' },
-                        { to: 'escape', label: 'Escape Pod Bay', locked: true }
+                        { to: 'awakening', label: 'Back to Clinic' },
+                        { to: 'storage', label: 'Storage Room' },
+                        { to: 'security', label: 'Security Room', locked: true }
                     ]
                 },
-                lab: {
-                    name: 'Research Lab',
-                    description: 'The lab is a mess of broken equipment. Something went terribly wrong here.',
+                storage: {
+                    name: 'Parts Storage',
+                    image: 'storage.jpg',
+                    description: 'Rows of cybernetic parts line the walls. Most are damaged or incompatible with your systems.',
                     items: [
-                        { id: 'password', name: 'Password Note', description: 'A note with the escape pod override code' },
-                        { id: 'battery', name: 'Power Cell', description: 'Emergency power cell' }
+                        { id: 'arm', name: 'Cybernetic Arm', image: 'arm.jpg', description: 'A military-grade cybernetic arm. Looks compatible with your system.' },
+                        { id: 'hack_tool', name: 'Hacking Module', image: 'hacktool.jpg', description: 'A specialized cyberdeck for bypassing security systems.' }
                     ],
                     exits: [
                         { to: 'corridor', label: 'Back to Corridor' }
                     ]
                 },
-                escape: {
-                    name: 'Escape Pod Bay',
-                    description: 'The escape pod is ready. You need to power it up and enter the override code.',
+                security: {
+                    name: 'Security Control',
+                    image: 'security.jpg',
+                    description: 'The clinic\'s security center. Multiple screens show camera feeds and system status.',
+                    items: [
+                        { id: 'leg', name: 'Cybernetic Leg', image: 'leg.jpg', description: 'Your missing leg, stored in a security locker.' }
+                    ],
+                    exits: [
+                        { to: 'corridor', label: 'Back to Corridor' },
+                        { to: 'exit', label: 'Exit Facility', locked: true }
+                    ]
+                },
+                exit: {
+                    name: 'Facility Exit',
+                    image: 'exit.jpg',
+                    description: 'The heavily secured exit of the facility. You\'ll need full mobility to escape through here.',
                     items: [],
                     exits: [
-                        { to: 'corridor', label: 'Back to Corridor' }
+                        { to: 'security', label: 'Back to Security' }
                     ]
                 }
             }
@@ -58,67 +78,130 @@ createApp({
     computed: {
         currentRoom() {
             return this.rooms[this.currentRoomId];
+        },
+        isItemInInventory() {
+            return this.examiningItem && this.inventory.some(item => item.id === this.examiningItem.id);
         }
     },
     mounted() {
         this.startTimer();
+        this.initializeModals();
     },
     methods: {
+        initializeModals() {
+            this.examineModal = new bootstrap.Modal(document.getElementById('examineModal'));
+            this.gameOverModal = new bootstrap.Modal(document.getElementById('gameOverModal'));
+        },
         startTimer() {
             const timer = setInterval(() => {
                 if (this.timeLeft > 0 && !this.gameOver) {
                     this.timeLeft--;
+                    this.updateStats();
                 } else if (!this.gameOver) {
-                    this.endGame(false, 'Time\'s Up!', 'The station exploded before you could escape.');
+                    this.endGame(false, 'System Failure', 'Your cybernetic systems shut down completely.');
                     clearInterval(timer);
                 }
             }, 1000);
+        },
+        updateStats() {
+            if (this.timeLeft % 60 === 0) {
+                this.stats.energy = Math.max(0, this.stats.energy - 5);
+                if (this.stats.energy === 0) {
+                    this.stats.health = Math.max(0, this.stats.health - 10);
+                }
+            }
         },
         formatTime(seconds) {
             const minutes = Math.floor(seconds / 60);
             const remainingSeconds = seconds % 60;
             return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
         },
-        pickupItem(item) {
-            if (this.inventory.length >= 5) {
-                alert('Inventory full! (Max 5 items)');
+        examineItem(item) {
+            this.examiningItem = item;
+            this.examineModal.show();
+        },
+        pickupExaminedItem() {
+            if (this.inventory.length >= 8) {
+                alert('Neural storage capacity reached!');
                 return;
             }
+            this.pickupItem(this.examiningItem);
+            this.examineModal.hide();
+        },
+        pickupItem(item) {
             this.inventory.push(item);
             this.currentRoom.items = this.currentRoom.items.filter(i => i.id !== item.id);
         },
         useItem(item) {
-            if (this.currentRoomId === 'escape') {
-                if (this.hasRequiredItems()) {
-                    this.endGame(true, 'Congratulations!', 'You successfully escaped the station!');
-                } else {
-                    alert('You need the keycard, power cell, and password to escape!');
-                }
+            switch(item.id) {
+                case 'arm':
+                    if (!this.stats.hasArm) {
+                        this.stats.hasArm = true;
+                        this.stats.health += 10;
+                        this.removeFromInventory(item);
+                        alert('Cybernetic arm successfully installed.');
+                    }
+                    break;
+                case 'leg':
+                    if (!this.stats.hasLeg) {
+                        this.stats.hasLeg = true;
+                        this.stats.health += 10;
+                        this.removeFromInventory(item);
+                        alert('Cybernetic leg successfully installed.');
+                    }
+                    break;
+                case 'syringe':
+                    this.stats.health = Math.min(100, this.stats.health + 30);
+                    this.stats.energy = Math.min(100, this.stats.energy + 40);
+                    this.removeFromInventory(item);
+                    break;
+                case 'hack_tool':
+                    if (this.currentRoomId === 'security') {
+                        this.rooms.security.exits.find(e => e.to === 'exit').locked = false;
+                        this.removeFromInventory(item);
+                        alert('Security systems bypassed. Exit unlocked.');
+                    }
+                    break;
+                case 'keycard':
+                    if (this.currentRoomId === 'corridor') {
+                        this.rooms.corridor.exits.find(e => e.to === 'security').locked = false;
+                        alert('Security room unlocked.');
+                    }
+                    break;
             }
-            // Other item usage logic can be added here
+            this.checkWinCondition();
+        },
+        removeFromInventory(item) {
+            this.inventory = this.inventory.filter(i => i.id !== item.id);
         },
         moveToRoom(roomId) {
-            if (roomId === 'escape' && !this.hasKeycard()) {
-                alert('You need a keycard to enter this area!');
-                return;
+            if (this.canEnterRoom(roomId)) {
+                this.currentRoomId = roomId;
+                this.checkWinCondition();
             }
-            this.currentRoomId = roomId;
         },
-        hasKeycard() {
-            return this.inventory.some(item => item.id === 'keycard');
+        canEnterRoom(roomId) {
+            const exit = this.currentRoom.exits.find(e => e.to === roomId);
+            if (exit.locked) {
+                alert('Access denied. Find a way to unlock this path.');
+                return false;
+            }
+            if (roomId === 'exit' && (!this.stats.hasArm || !this.stats.hasLeg)) {
+                alert('You need both cybernetic limbs installed to escape.');
+                return false;
+            }
+            return true;
         },
-        hasRequiredItems() {
-            const requiredItems = ['keycard', 'battery', 'password'];
-            return requiredItems.every(itemId => 
-                this.inventory.some(item => item.id === itemId)
-            );
+        checkWinCondition() {
+            if (this.currentRoomId === 'exit' && this.stats.hasArm && this.stats.hasLeg) {
+                this.endGame(true, 'Freedom Achieved', 'You successfully escaped the facility with your recovered cybernetics.');
+            }
         },
         endGame(won, title, message) {
-            this.gameOver = true;
             this.gameOverTitle = title;
             this.gameOverMessage = message;
-            const modal = new bootstrap.Modal(document.getElementById('gameOverModal'));
-            modal.show();
+            this.gameOver = true;
+            this.gameOverModal.show();
         },
         restartGame() {
             location.reload();
