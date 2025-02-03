@@ -44,8 +44,8 @@
 
         <!-- Game Interface -->
         <div v-else>
-            <!-- Main Game Area -->
             <div class="row">
+                <!-- Main Game Area -->
                 <div class="col-md-8">
                     <div class="game-screen p-3">
                         <div class="room-view position-relative">
@@ -55,27 +55,15 @@
                                  :class="['interaction-spot', hotspot.class]"
                                  :style="hotspot.style"
                                  @click="interact(hotspot)">
+                                <img v-if="hotspot.image" :src="hotspot.image" style="width: 100%; height: 100%; object-fit: contain;">
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- System Status Panel -->
+                
+                <!-- Level-specific Right Panel -->
                 <div class="col-md-4">
-                    <div class="cyber-panel p-3">
-                        <h4 class="neon-text mb-3">System Status</h4>
-                        <div class="status-grid">
-                            <div class="status-item danger-text rapid-blink">
-                                Blood Level: {{ stats.bloodLoss }}% [CRITICAL]
-                            </div>
-                            <div class="status-item damaged">
-                                Right Arm: MISSING
-                            </div>
-                            <div class="status-item damaged">
-                                Left Leg: MISSING
-                            </div>
-                        </div>
-                    </div>
+                    <div v-if="!showStory" v-html="currentLevelData.ui.rightPanel.render(this)"></div>
                 </div>
             </div>
         </div>

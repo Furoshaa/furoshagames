@@ -5,13 +5,8 @@ createApp({
         return {
             showStory: true,
             currentLevel: 1,
-            stats: {
-                health: 45,
-                bloodLoss: 75, // Changed from 100 to 75
-                energy: 60,
-                hasArmLink: false,
-                hasLegLink: false
-            },
+            currentLevelData: level1,
+            stats: { ...level1.stats },
             feedback: {
                 title: '',
                 message: '',
@@ -20,15 +15,17 @@ createApp({
             currentStory: level1.initialStory,
             currentRoom: null,
             storyProgress: 0,
-            bloodLossTimer: null,
             isGameOver: false
         }
     },
     mounted() {
         this.initializeModals();
-        this.initializeInterface();
     },
     methods: {
+        initializeLevel() {
+            this.stats = {...this.currentLevelData.stats};
+            this.currentStory = this.currentLevelData.initialStory;
+        },
         initializeModals() {
             this.feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
         },
@@ -43,14 +40,14 @@ createApp({
             }
         },
         progressStory() {
-            if (this.storyProgress < level1.story.length - 1) {
+            if (this.storyProgress < this.currentLevelData.story.length - 1) {
                 this.storyProgress++;
-                this.currentStory = level1.story[this.storyProgress];
+                this.currentStory = this.currentLevelData.story[this.storyProgress];
             } else {
                 this.showStory = false;
-                this.currentRoom = level1.rooms.clinic;
-                this.startBloodLossTimer();
-                this.gameStarted = true;
+                this.currentRoom = this.currentLevelData.rooms.clinic;
+                // Let the level handle its own mechanics
+                this.currentLevelData.mechanics.onRoomEnter(this);
             }
         },
         interact(hotspot) {
@@ -58,80 +55,26 @@ createApp({
                 hotspot.action(this);
             }
         },
-        startBloodLossTimer() {
-            if (this.bloodLossTimer) {
-                clearInterval(this.bloodLossTimer);
-            }
-            
-            this.bloodLossTimer = setInterval(() => {
-                if (!this.stats.hasArmLink && !this.isGameOver) {
-                    this.stats.bloodLoss = Math.max(0, this.stats.bloodLoss - 1);
-                    
-                    if (this.stats.bloodLoss <= 20) {
-                        this.gameOver('Critical System Failure', 'Blood level critically low. Emergency shutdown initiated.');
-                    }
-                }
-            }, 1000);
-        },
         gameOver(title, message) {
-            if (this.bloodLossTimer) {
-                clearInterval(this.bloodLossTimer);
-            }
             this.isGameOver = true;
             this.showFeedback(title, message, 'Try Again');
-        },
-        startTimer() {
-            this.timer = setInterval(() => {
-                if (this.timeLeft > 0 && !this.gameOver) {
-                    this.timeLeft--;
-                    this.updateStats();
-                } else if (!this.gameOver) {
-                    this.endGame(false, 'System Failure', 'Your cybernetic systems shut down completely.');
-                    clearInterval(this.timer);
-                }
-            }, 1000);
         },
         resetGame() {
             this.showStory = true;
             this.storyProgress = 0;
-            this.currentStory = level1.initialStory;
-            
-            this.stats.health = 45;
-            this.stats.bloodLoss = 75; // Also update reset value to 75
-            this.stats.energy = 60;
-            this.stats.hasArmLink = false;
-            this.stats.hasLegLink = false;
-            
+            this.currentStory = this.currentLevelData.initialStory;
+            this.stats = { ...this.currentLevelData.stats };
             this.currentRoom = null;
             this.isGameOver = false;
-            
-            if (this.bloodLossTimer) {
-                clearInterval(this.bloodLossTimer);
-                this.bloodLossTimer = null;
-            }
+            this.currentLevelData.mechanics.onReset(this);
         },
-        updateSystemStatus() {
-            const statusElement = document.querySelector('.system-status-panel');
-            statusElement.innerHTML = `
-                <h3>SYSTEM STATUS</h3>
-                <div class="status-item blood-level blink">BLOOD LEVEL: ${this.stats.bloodLoss}% [CRITICAL]</div>
-                <div class="status-item">RIGHT ARM: MISSING</div>
-                <div class="status-item">LEFT LEG: MISSING</div>
-            `;
-        },
-        initializeInterface() {
-            const gameContainer = document.querySelector('.game-container');
-            gameContainer.innerHTML = `
-                <div class="game-content">
-                    <div class="story-panel">
-                        <!-- Story content here -->
-                    </div>
-                    <div class="system-status-panel">
-                        <!-- Status will be updated by updateSystemStatus() -->
-                    </div>
-                </div>
-            `;
-            this.updateSystemStatus();
+        updateUI() {
+            this.$forceUpdate();
+        }
+    },
+    watch: {
+        'stats.bloodLoss'(newVal, oldVal) {
+            this.updateUI();
         }
     }
 }).mount('#game');

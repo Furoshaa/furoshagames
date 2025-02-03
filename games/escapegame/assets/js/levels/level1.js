@@ -6,7 +6,7 @@ const level1 = {
         bleeding badly.<br><br>
         <div class="system-status">
             SYSTEM STATUS:<br>
-            <span class="blink danger-text">BLOOD LEVEL: 47% [CRITICAL]</span><br>
+            <span class="blink danger-text">BLOOD LEVEL: 67% [CRITICAL]</span><br>
             RIGHT ARM: MISSING<br>
             LEFT LEG: MISSING<br>
             SEEK IMMEDIATE MEDICAL ATTENTION
@@ -34,19 +34,83 @@ const level1 = {
             buttonText: 'Enter Room'
         }
     ],
+    stats: {
+        bloodLoss: 67,
+        hasArmLink: false,
+        hasLegLink: false
+    },
+    ui: {
+        rightPanel: {
+            render(game) {
+                return `
+                    <div class="cyber-panel p-3">
+                        <h4 class="neon-text mb-3">System Status</h4>
+                        <div class="status-grid">
+                            <div class="status-item danger-text rapid-blink">
+                                Blood Level: ${game.stats.bloodLoss}% [CRITICAL]
+                            </div>
+                            <div class="status-item damaged">
+                                Right Arm: MISSING
+                            </div>
+                            <div class="status-item damaged">
+                                Left Leg: MISSING
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    },
+    mechanics: {
+        bloodLossTimer: null,
+        
+        onRoomEnter(game) {
+            this.startBloodLossTimer(game);
+        },
+        
+        onReset(game) {
+            this.stopTimer(game);
+        },
+
+        startBloodLossTimer(game) {
+            if (this.bloodLossTimer) {
+                clearInterval(this.bloodLossTimer);
+            }
+            
+            this.bloodLossTimer = setInterval(() => {
+                if (!game.stats.hasArmLink && !game.isGameOver) {
+                    game.stats.bloodLoss = Math.max(0, game.stats.bloodLoss - 1);
+                    
+                    if (game.stats.bloodLoss <= 20) {
+                        this.stopTimer(game);
+                        game.gameOver('Critical System Failure', 'Blood level critically low. Emergency shutdown initiated.');
+                    }
+                }
+            }, 1000);
+        },
+
+        stopTimer(game) {
+            if (this.bloodLossTimer) {
+                clearInterval(this.bloodLossTimer);
+                this.bloodLossTimer = null;
+            }
+        }
+    },
     rooms: {
         clinic: {
-            background: 'assets/images/rooms/clinic.png',
+            background: 'assets/images/rooms/clinic.jpg',
             hotspots: [
                 {
                     id: 'table',
-                    class: 'operating-table',
+                    class: 'operating-table clickable-image',
                     style: {
                         left: '40%',
                         top: '50%',
                         width: '20%',
-                        height: '30%'
+                        height: 'auto',
+                        cursor: 'pointer'
                     },
+                    image: 'assets/images/items/chair.png',
                     action: (game) => {
                         if (!game.stats.hasArmLink) {
                             game.showFeedback(
@@ -54,11 +118,9 @@ const level1 = {
                                 'The auto-surgeon is ready. Install emergency connection ports to stop the bleeding?',
                                 'Begin Procedure'
                             );
-                            // Add procedure logic here
                         }
                     }
                 }
-                // Add more hotspots as needed
             ]
         }
     }
