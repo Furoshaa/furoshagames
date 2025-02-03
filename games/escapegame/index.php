@@ -10,6 +10,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="bg-dark text-light cyberpunk">
+    <!-- Updated navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand" href="../../index.php">Furosha's Games</a>
+            <div class="mx-auto">
+                <h5 class="mb-0 neon-text">Cyberpunk Awakening</h5>
+            </div>
+            <a href="../../index.php" class="btn btn-outline-light">Main Menu</a>
+        </div>
+    </nav>
+
+    <!-- Auth check -->
+    <?php
+    session_start();
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ../../index.php');
+        exit();
+    }
+    ?>
+
     <div id="game" class="container-fluid p-4">
         <!-- Story Panel -->
         <div v-if="showStory" class="story-panel">
