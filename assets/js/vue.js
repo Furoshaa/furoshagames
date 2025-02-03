@@ -7,13 +7,13 @@ createApp({
             games: [
                 {
                     id: 1,
-                    name: 'RPG Adventure',
-                    image: 'assets/images/rpg-preview.jpg'
+                    name: 'RPG',
+                    image: 'assets/images/rpg_preview.jpg'
                 },
                 {
                     id: 2,
-                    name: 'Escape Room',
-                    image: 'assets/images/escape-preview.jpg'
+                    name: 'Escape Game',
+                    image: 'assets/images/escape_preview.jpg'
                 }
             ],
             loginForm: {
@@ -34,8 +34,9 @@ createApp({
     },
     mounted() {
         this.toast = new bootstrap.Toast(this.$refs.toast, {
-            delay: 3000,
-            animation: true
+            delay: 4000, // Increased display time
+            animation: true,
+            autohide: true
         });
     },
     methods: {

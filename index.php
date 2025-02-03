@@ -25,12 +25,23 @@
             <div class="row g-4">
                 <div class="col-md-6" v-for="game in games" :key="game.id">
                     <div class="card bg-dark h-100">
-                        <div class="position-relative game-tile">
+                        <div class="position-relative game-tile" 
+                             @click="playGame(game.id)" 
+                             style="cursor: pointer; transition: transform 0.2s;"
+                             onmouseover="this.style.transform='scale(1.02)'" 
+                             onmouseout="this.style.transform='scale(1)'">
                             <img :src="game.image" class="card-img-top" :alt="game.name" 
                                  style="filter: blur(3px); height: 300px; object-fit: cover;">
+                            <div class="position-absolute top-0 start-0 w-100 h-100" 
+                                 style="background: rgba(0,0,0,0.4);"></div>
                             <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                <h2 class="text-white fw-bold">{{ game.name }}</h2>
-                                <button class="btn btn-primary mt-3" @click="playGame(game.id)">Play Now</button>
+                                <h2 class="text-white fw-bold" 
+                                    style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 
+                                           -2px -2px 4px rgba(0,0,0,0.8), 
+                                           2px -2px 4px rgba(0,0,0,0.8), 
+                                           -2px 2px 4px rgba(0,0,0,0.8);">
+                                    {{ game.name }}
+                                </h2>
                             </div>
                         </div>
                     </div>
@@ -38,8 +49,8 @@
             </div>
         </div>
 
-        <!-- Toast Container -->
-        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <!-- Toast Container - Moved to top-center -->
+        <div class="toast-container position-fixed top-50 start-50 translate-middle" style="z-index: 1500;">
             <div class="toast align-items-center border-0" 
                  :class="{'bg-success': notification.type === 'success', 'bg-danger': notification.type === 'error'}"
                  role="alert" 
@@ -47,10 +58,10 @@
                  aria-atomic="true"
                  ref="toast">
                 <div class="d-flex">
-                    <div class="toast-body text-white">
+                    <div class="toast-body text-white fs-5 px-4 py-3">
                         {{ notification.message }}
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    <button type="button" class="btn-close btn-close-white me-3 m-auto" data-bs-dismiss="toast"></button>
                 </div>
             </div>
         </div>
