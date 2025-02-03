@@ -136,7 +136,7 @@ createApp({
                 this.showLoginModal();
                 return;
             }
-            window.location.href = gameId === 1 ? 'rpg/' : 'escape/';
+            window.location.href = gameId === 1 ? 'games/rpg/' : 'games/escapegame/';
         }
     }
 }).mount('#app');
