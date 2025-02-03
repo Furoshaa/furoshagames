@@ -7,7 +7,7 @@ createApp({
             currentLevel: 1,
             stats: {
                 health: 45,
-                bloodLoss: 75,
+                bloodLoss: 75, // Changed from 100 to 75
                 energy: 60,
                 hasArmLink: false,
                 hasLegLink: false
@@ -26,6 +26,7 @@ createApp({
     },
     mounted() {
         this.initializeModals();
+        this.initializeInterface();
     },
     methods: {
         initializeModals() {
@@ -64,13 +65,13 @@ createApp({
             
             this.bloodLossTimer = setInterval(() => {
                 if (!this.stats.hasArmLink && !this.isGameOver) {
-                    this.stats.bloodLoss = Math.min(100, this.stats.bloodLoss + 1);
+                    this.stats.bloodLoss = Math.max(0, this.stats.bloodLoss - 1);
                     
-                    if (this.stats.bloodLoss >= 100) {
-                        this.gameOver('Critical System Failure', 'Blood loss reached critical levels. Emergency shutdown initiated.');
+                    if (this.stats.bloodLoss <= 20) {
+                        this.gameOver('Critical System Failure', 'Blood level critically low. Emergency shutdown initiated.');
                     }
                 }
-            }, 1000);  // Changed from 5000 to 1000 to update every second
+            }, 1000);
         },
         gameOver(title, message) {
             if (this.bloodLossTimer) {
@@ -96,7 +97,7 @@ createApp({
             this.currentStory = level1.initialStory;
             
             this.stats.health = 45;
-            this.stats.bloodLoss = 75;
+            this.stats.bloodLoss = 75; // Also update reset value to 75
             this.stats.energy = 60;
             this.stats.hasArmLink = false;
             this.stats.hasLegLink = false;
@@ -108,6 +109,29 @@ createApp({
                 clearInterval(this.bloodLossTimer);
                 this.bloodLossTimer = null;
             }
+        },
+        updateSystemStatus() {
+            const statusElement = document.querySelector('.system-status-panel');
+            statusElement.innerHTML = `
+                <h3>SYSTEM STATUS</h3>
+                <div class="status-item blood-level blink">BLOOD LEVEL: ${this.stats.bloodLoss}% [CRITICAL]</div>
+                <div class="status-item">RIGHT ARM: MISSING</div>
+                <div class="status-item">LEFT LEG: MISSING</div>
+            `;
+        },
+        initializeInterface() {
+            const gameContainer = document.querySelector('.game-container');
+            gameContainer.innerHTML = `
+                <div class="game-content">
+                    <div class="story-panel">
+                        <!-- Story content here -->
+                    </div>
+                    <div class="system-status-panel">
+                        <!-- Status will be updated by updateSystemStatus() -->
+                    </div>
+                </div>
+            `;
+            this.updateSystemStatus();
         }
     }
 }).mount('#game');

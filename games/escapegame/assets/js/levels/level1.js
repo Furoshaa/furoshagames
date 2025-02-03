@@ -3,8 +3,14 @@ const level1 = {
         title: 'System Reboot',
         content: `Pain. That's the first thing you register as your consciousness floods back. 
         Your right arm and left leg are gone - clean cuts, professional work. But they're 
-        bleeding badly.<br><br>Through the haze of pain, you recognize your surroundings: 
-        an illegal cyberclinic. The kind that doesn't ask questions... or keep records.`,
+        bleeding badly.<br><br>
+        <div class="system-status">
+            SYSTEM STATUS:<br>
+            <span class="blink danger-text">BLOOD LEVEL: 47% [CRITICAL]</span><br>
+            RIGHT ARM: MISSING<br>
+            LEFT LEG: MISSING<br>
+            SEEK IMMEDIATE MEDICAL ATTENTION
+        </div>`,
         buttonText: 'Try to Move...'
     },
     story: [

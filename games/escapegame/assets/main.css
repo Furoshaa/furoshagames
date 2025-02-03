@@ -216,3 +216,56 @@
     border-color: #ff0000;
     color: #ff0000;
 }
+
+.status-critical {
+    color: #ff0000 !important;
+    text-shadow: 0 0 10px #ff0000;
+    font-weight: bold;
+    animation: blink-critical 1s infinite;
+}
+
+.status-missing {
+    color: #ff3333 !important;
+    text-shadow: 0 0 5px #ff0000;
+}
+
+.blink {
+    animation: blink-animation 1s steps(2, start) infinite;
+}
+
+@keyframes blink-animation {
+    to {
+        color: #660000;
+        text-shadow: 0 0 2px #ff0000;
+    }
+}
+
+@keyframes blink-critical {
+    0% { opacity: 1; text-shadow: 0 0 10px #ff0000; }
+    50% { opacity: 0.3; text-shadow: 0 0 5px #ff0000; }
+    100% { opacity: 1; text-shadow: 0 0 10px #ff0000; }
+}
+
+.cyber-panel {
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #ff0000;
+    box-shadow: 0 0 20px #ff0000, inset 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.rapid-blink {
+    animation: rapid-blink 0.5s steps(2, start) infinite;
+    font-weight: bold;
+}
+
+@keyframes rapid-blink {
+    0% { 
+        opacity: 1; 
+        color: #ff0000; 
+        text-shadow: 0 0 20px #ff0000, 0 0 10px #ff0000; 
+    }
+    100% { 
+        opacity: 0.5;  /* Changed from 0.2 to 0.5 */
+        color: #ff3333; /* Changed from #660000 to brighter red */
+        text-shadow: 0 0 10px #ff0000; 
+    }
+}

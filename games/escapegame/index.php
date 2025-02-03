@@ -44,25 +44,6 @@
 
         <!-- Game Interface -->
         <div v-else>
-            <!-- Stats Bar -->
-            <div class="row mb-4">
-                <div class="col">
-                    <div class="stats-panel p-2">
-                        <div class="d-flex justify-content-between">
-                            <div class="stat-item">System Integrity: 
-                                <span class="neon-text">{{ stats.health }}%</span>
-                            </div>
-                            <div class="stat-item danger-text">Blood Loss: 
-                                <span>{{ stats.bloodLoss }}%</span>
-                            </div>
-                            <div class="stat-item">Power: 
-                                <span class="neon-text">{{ stats.energy }}%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Main Game Area -->
             <div class="row">
                 <div class="col-md-8">
@@ -79,16 +60,19 @@
                     </div>
                 </div>
 
-                <!-- Inventory/Status Panel -->
+                <!-- System Status Panel -->
                 <div class="col-md-4">
                     <div class="cyber-panel p-3">
                         <h4 class="neon-text mb-3">System Status</h4>
                         <div class="status-grid">
-                            <div class="status-item" :class="{ 'damaged': !stats.hasArmLink }">
-                                Right Arm Connection Port
+                            <div class="status-item danger-text rapid-blink">
+                                Blood Level: {{ stats.bloodLoss }}% [CRITICAL]
                             </div>
-                            <div class="status-item" :class="{ 'damaged': !stats.hasLegLink }">
-                                Left Leg Connection Port
+                            <div class="status-item damaged">
+                                Right Arm: MISSING
+                            </div>
+                            <div class="status-item damaged">
+                                Left Leg: MISSING
                             </div>
                         </div>
                     </div>
