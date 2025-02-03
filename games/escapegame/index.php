@@ -8,148 +8,95 @@
     <link href="assets/main.css" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuedraggable@4.1.0/dist/vuedraggable.umd.min.js"></script>
 </head>
 <body class="bg-dark text-light cyberpunk">
     <div id="game" class="container-fluid p-4">
-        <div class="row mb-4">
-            <div class="col">
-                <h1 class="text-center neon-text">Cyberpunk Awakening</h1>
-                <div class="stats-panel p-2 mb-3">
-                    <div class="d-flex justify-content-between">
-                        <div class="stat-item">Location: <span class="neon-text">{{ currentRoom.name }}</span></div>
-                        <div class="stat-item">System Integrity: <span class="neon-text">{{ stats.health }}%</span></div>
-                        <div class="stat-item">Power Level: <span class="neon-text">{{ stats.energy }}%</span></div>
-                        <div class="stat-item">Time Left: <span class="neon-text">{{ formatTime(timeLeft) }}</span></div>
-                    </div>
-                </div>
+        <!-- Story Panel -->
+        <div v-if="showStory" class="story-panel">
+            <div class="story-content p-4">
+                <h2 class="neon-text mb-4">{{ currentStory.title }}</h2>
+                <div class="cyber-text mb-4" v-html="currentStory.content"></div>
+                <button @click="progressStory" class="btn cyber-btn float-end">
+                    {{ currentStory.buttonText || 'Continue' }}
+                </button>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-8">
-                <div class="game-screen p-3 mb-3">
-                    <div class="room-image mb-3">
-                        <img :src="'assets/images/rooms/' + currentRoom.image" class="img-fluid rounded">
-                    </div>
-                    <div class="description-panel p-3 mb-3">
-                        <p v-html="currentRoom.description" class="cyber-text"></p>
-                    </div>
-                    
-                    <div class="interaction-panel">
-                        <div class="room-items mb-4" v-if="currentRoom.items.length">
-                            <h5 class="neon-text">Available Items:</h5>
-                            <div class="d-flex flex-wrap gap-2">
-                                <div v-for="item in currentRoom.items" 
-                                     :key="item.id"
-                                     class="item-card"
-                                     @click="examineItem(item)">
-                                    <img :src="'assets/images/items/' + item.image" class="item-image">
-                                    <span class="item-name">{{ item.name }}</span>
-                                </div>
+        <!-- Game Interface -->
+        <div v-else>
+            <!-- Stats Bar -->
+            <div class="row mb-4">
+                <div class="col">
+                    <div class="stats-panel p-2">
+                        <div class="d-flex justify-content-between">
+                            <div class="stat-item">System Integrity: 
+                                <span class="neon-text">{{ stats.health }}%</span>
                             </div>
-                        </div>
-
-                        <div class="room-exits">
-                            <h5 class="neon-text">Navigation:</h5>
-                            <div class="d-flex flex-wrap gap-2">
-                                <button v-for="exit in currentRoom.exits" 
-                                        :key="exit.to"
-                                        @click="moveToRoom(exit.to)"
-                                        :class="['btn', 'cyber-btn', {'locked': exit.locked}]"
-                                        :disabled="exit.locked">
-                                    {{ exit.label }}
-                                    <i v-if="exit.locked" class="fas fa-lock"></i>
-                                </button>
+                            <div class="stat-item danger-text">Blood Loss: 
+                                <span>{{ stats.bloodLoss }}%</span>
+                            </div>
+                            <div class="stat-item">Power: 
+                                <span class="neon-text">{{ stats.energy }}%</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="character-panel p-3 mb-3">
-                    <h4 class="neon-text">Augmentation Status</h4>
-                    <div class="cybernetic-status">
-                        <div class="body-part" :class="{ 'missing': !stats.hasArm }">Right Arm</div>
-                        <div class="body-part" :class="{ 'missing': !stats.hasLeg }">Left Leg</div>
-                        <div class="body-part" :class="{ 'damaged': stats.health < 50 }">Core System</div>
+            <!-- Main Game Area -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="game-screen p-3">
+                        <div class="room-view position-relative">
+                            <img :src="currentRoom.background" class="img-fluid room-bg">
+                            <div v-for="hotspot in currentRoom.hotspots" 
+                                 :key="hotspot.id"
+                                 :class="['interaction-spot', hotspot.class]"
+                                 :style="hotspot.style"
+                                 @click="interact(hotspot)">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="inventory-panel p-3">
-                    <h4 class="neon-text">Neural Storage ({{ inventory.length }}/8)</h4>
-                    <draggable 
-                        v-model="inventory" 
-                        class="inventory-grid"
-                        :options="{ group: 'items' }">
-                        <div v-for="item in inventory" 
-                             :key="item.id"
-                             class="inventory-item"
-                             @click="useItem(item)"
-                             @contextmenu.prevent="examineItem(item)">
-                            <img :src="'assets/images/items/' + item.image" :alt="item.name">
-                            <span class="item-name">{{ item.name }}</span>
+                <!-- Inventory/Status Panel -->
+                <div class="col-md-4">
+                    <div class="cyber-panel p-3">
+                        <h4 class="neon-text mb-3">System Status</h4>
+                        <div class="status-grid">
+                            <div class="status-item" :class="{ 'damaged': !stats.hasArmLink }">
+                                Right Arm Connection Port
+                            </div>
+                            <div class="status-item" :class="{ 'damaged': !stats.hasLegLink }">
+                                Left Leg Connection Port
+                            </div>
                         </div>
-                    </draggable>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Item Examination Modal -->
-        <div class="modal fade" id="examineModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
+        <!-- Feedback Modal -->
+        <div class="modal fade" id="feedbackModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content cyber-modal">
                     <div class="modal-header">
-                        <h5 class="modal-title neon-text">{{ examiningItem?.name || '' }}</h5>
-                        <button type="button" class="btn-close neon-text" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <img :src="'assets/images/items/' + examiningItem?.image" 
-                                     class="img-fluid rounded">
-                            </div>
-                            <div class="col-md-8">
-                                <p class="cyber-text">{{ examiningItem?.description }}</p>
-                                <div class="item-actions mt-3">
-                                    <button @click="pickupExaminedItem" 
-                                            class="btn cyber-btn"
-                                            v-if="!isItemInInventory">
-                                        Upload to Neural Storage
-                                    </button>
-                                    <button @click="useExaminedItem" 
-                                            class="btn cyber-btn"
-                                            v-else>
-                                        Use Item
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Game Over Modal -->
-        <div class="modal fade" id="gameOverModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content cyber-modal">
-                    <div class="modal-header">
-                        <h5 class="modal-title neon-text">{{ gameOverTitle }}</h5>
+                        <h5 class="modal-title neon-text">{{ feedback.title }}</h5>
                     </div>
                     <div class="modal-body cyber-text">
-                        <p>{{ gameOverMessage }}</p>
+                        <p v-html="feedback.message"></p>
                     </div>
                     <div class="modal-footer">
-                        <button @click="restartGame" class="btn cyber-btn">Reboot System</button>
-                        <a href="../index.php" class="btn cyber-btn-secondary">Exit Simulation</a>
+                        <button @click="closeFeedback" class="btn cyber-btn">
+                            {{ feedback.buttonText || 'Continue' }}
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="assets/game.js"></script>
+
+    <script src="assets/js/levels/level1.js"></script>
+    <script src="assets/js/game.js"></script>
 </body>
 </html>
