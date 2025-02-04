@@ -215,6 +215,12 @@
     color: #ff0000;
 }
 
+.status-item.found {
+    border-color: #00ff00;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+}
+
 .status-critical {
     color: #ff0000 !important;
     text-shadow: 0 0 10px #ff0000;

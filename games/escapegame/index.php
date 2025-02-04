@@ -89,6 +89,7 @@
     </div>
 
     <script src="assets/js/levels/level1.js"></script>
+    <script src="assets/js/levels/level2.js"></script>
     <script src="assets/js/game.js"></script>
 </body>
 </html>

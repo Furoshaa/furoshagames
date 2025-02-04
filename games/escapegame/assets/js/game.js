@@ -39,15 +39,50 @@ createApp({
                 this.resetGame();
             }
         },
+        loadLevel(levelNumber) {
+            console.log('Loading level:', levelNumber); // Debug log
+            switch(levelNumber) {
+                case 1:
+                    this.currentLevelData = level1;
+                    break;
+                case 2:
+                    this.currentLevelData = level2;
+                    if (this.currentLevelData.mechanics.onStart) {
+                        this.currentLevelData.mechanics.onStart(this);
+                    }
+                    break;
+            }
+            this.showStory = true;
+            this.storyProgress = 0;
+            this.currentStory = this.currentLevelData.initialStory;
+            this.stats = { ...this.currentLevelData.stats };
+            this.currentLevel = levelNumber;
+        },
         progressStory() {
+            // For procedure story
+            if (this.currentStory && this.currentStory.isProcedure) {
+                console.log('In procedure:', this.currentStory.title);
+                const nextIndex = this.storyProgress + 1;
+                
+                if (nextIndex < this.currentLevelData.procedureStory.length) {
+                    this.storyProgress = nextIndex;
+                    this.currentStory = this.currentLevelData.procedureStory[nextIndex];
+                } else {
+                    this.loadLevel(2);
+                }
+                return;
+            }
+
+            // Normal story progression
             if (this.storyProgress < this.currentLevelData.story.length - 1) {
                 this.storyProgress++;
                 this.currentStory = this.currentLevelData.story[this.storyProgress];
             } else {
                 this.showStory = false;
                 this.currentRoom = this.currentLevelData.rooms.clinic;
-                // Let the level handle its own mechanics
-                this.currentLevelData.mechanics.onRoomEnter(this);
+                if (this.currentLevelData.mechanics.onRoomEnter) {
+                    this.currentLevelData.mechanics.onRoomEnter(this);
+                }
             }
         },
         interact(hotspot) {

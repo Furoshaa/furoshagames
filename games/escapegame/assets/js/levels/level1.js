@@ -34,6 +34,45 @@ const level1 = {
             buttonText: 'Enter Room'
         }
     ],
+    procedureStory: [
+        {
+            title: 'Initiating Auto-Surgery',
+            content: `The auto-surgeon whirs to life. Mechanical arms extend from the table, 
+            their tips gleaming with surgical precision tools. Your neural interface kicks in, 
+            flooding your system with localized anesthetic.<br><br>
+            <span class="danger-text">WARNING: EMERGENCY PROCEDURE INITIATED</span>`,
+            buttonText: 'Continue',
+            isProcedure: true
+        },
+        {
+            title: 'Connection Ports Installation',
+            content: `White-hot pain shoots through your shoulder as the machine begins installing 
+            the emergency connection port. The process is brutal but efficient - military-grade 
+            hardware meant for battlefield installations.<br><br>
+            Your vision swims as the leg port follows. The auto-surgeon's displays show your 
+            vital signs stabilizing as it works.`,
+            buttonText: 'Hold On...',
+            isProcedure: true
+        },
+        {
+            title: 'Blood Transfusion',
+            content: `The bleeding stops as synthetic blood begins flowing through your new ports. 
+            Your system accepts the transfusion, vital signs returning to acceptable levels.<br><br>
+            <span class="cyber-text">SYSTEM STATUS: STABILIZED<br>
+            EMERGENCY PORTS: FUNCTIONAL<br>
+            BLOOD LEVEL: RESTORED</span>`,
+            buttonText: 'Recovery Mode',
+            isProcedure: true
+        },
+        {
+            title: 'Level Complete',
+            content: `You're stable, but far from whole. The emergency ports will keep you alive, 
+            but you'll need proper cybernetic limbs to regain full functionality.<br><br>
+            Time to find out who did this to you...`,
+            buttonText: 'Continue to Level 2',
+            isProcedure: true
+        }
+    ],
     stats: {
         bloodLoss: 67,
         hasArmLink: false,
@@ -118,6 +157,12 @@ const level1 = {
                                 'The auto-surgeon is ready. Install emergency connection ports to stop the bleeding?',
                                 'Begin Procedure'
                             );
+                            game.storyProgress = 0; // Reset progress for procedure
+                            game.currentStory = level1.procedureStory[0];
+                            game.showStory = true;
+                            game.stats.hasArmLink = true;
+                            game.stats.hasLegLink = true;
+                            level1.mechanics.stopTimer(game);
                         }
                     }
                 }
