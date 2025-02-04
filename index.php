@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Furosha's Games</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
@@ -119,7 +120,33 @@
                 </div>
             </div>
         </div>
+
+
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        
+        <!-- Footer -->
+        <footer class="bg-dark text-light mt-5 border-top">
+            <div class="bg-darker py-3">
+                <div class="container text-center text-muted">
+                    <small>&copy; 2025 Furosha's Games. All rights reserved.</small>
+                </div>
+            </div>
+        </footer>
     </div>
+
     <script src="assets/js/vue.js"></script>
 </body>
 </html>
