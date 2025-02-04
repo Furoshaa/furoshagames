@@ -90,6 +90,10 @@ createApp({
                 hotspot.action(this);
             }
         },
+        changeRoom(roomKey) {
+            this.currentRoom = this.currentLevelData.rooms[roomKey];
+            this.updateUI();
+        },
         gameOver(title, message) {
             this.isGameOver = true;
             this.showFeedback(title, message, 'Try Again');

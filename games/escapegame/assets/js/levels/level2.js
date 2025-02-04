@@ -16,7 +16,7 @@ const level2 = {
             title: 'Limited Mobility',
             content: `Moving is a challenge. With one arm, you can drag yourself across the floor, 
             but it's slow and degrading. The storage area is through a door on the far side of the clinic.`,
-            buttonText: 'Continue'
+            buttonText: 'Begin Search'
         }
     ],
     stats: {
@@ -51,68 +51,88 @@ const level2 = {
                     id: 'door',
                     class: 'storage-door clickable-image',
                     style: {
-                        left: '80%',
-                        top: '40%',
-                        width: '15%',
-                        height: '30%',
+                        left: '30%',
+                        top: '30%',
+                        width: '20%',
+                        height: '40%',
                         cursor: 'pointer'
                     },
-                    image: 'assets/images/items/door.png',
+                    image: 'assets/images/items/door_real.jpg',
                     action: (game) => {
-                        game.currentRoom = level2.rooms.storage;
+                        game.showFeedback(
+                            'Storage Room',
+                            `You've made it to the storage room. The shelves are lined with boxes containing 
+                            various cybernetic parts. Most look damaged or incompatible, but among them might be exactly 
+                            what you need.<br><br>
+                            <span class="cyber-text">Search through the boxes carefully. You're looking for specific 
+                            compatibility markers that match your emergency ports.</span>`,
+                            'Enter Room'
+                        );
+                        game.feedbackModal._element.addEventListener('hidden.bs.modal', () => {
+                            game.currentRoom = level2.rooms.storage;
+                            game.updateUI();
+                        }, { once: true });
                     }
                 }
             ]
         },
         storage: {
             background: 'assets/images/rooms/storage.jpg',
-            hotspots: [
-                // Will generate random positions for boxes
-                // Some boxes will contain the limbs
-            ]
+            hotspots: []  // Will be populated by generateBoxes()
         }
     },
     mechanics: {
         generateBoxes() {
             const boxes = [];
-            const positions = this.generateRandomPositions(8); // 8 boxes
+            const rows = 3;
+            const cols = 4;
+            const boxWidth = 20;  // Increased size
+            const boxHeight = 20;
+            const padding = 5;
             
-            positions.forEach((pos, index) => {
-                boxes.push({
-                    id: `box_${index}`,
-                    class: 'storage-box clickable-image',
-                    style: {
-                        left: `${pos.x}%`,
-                        top: `${pos.y}%`,
-                        width: '10%',
-                        height: '10%',
-                        cursor: 'pointer'
-                    },
-                    image: 'assets/images/items/box.png',
-                    action: (game) => {
-                        if (game.stats.searchedBoxes.includes(index)) {
-                            game.showFeedback('Empty Box', 'You\'ve already searched this box.');
-                            return;
+            // Generate positions in a grid to avoid overlap
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const x = 10 + (col * (boxWidth + padding));
+                    const y = 10 + (row * (boxHeight + padding));
+                    
+                    const index = row * cols + col;
+                    boxes.push({
+                        id: `box_${index}`,
+                        class: 'storage-box clickable-image',
+                        style: {
+                            left: `${x}%`,
+                            top: `${y}%`,
+                            width: `${boxWidth}%`,
+                            height: `${boxHeight}%`,
+                            cursor: 'pointer'
+                        },
+                        image: 'assets/images/items/box.png',
+                        action: (game) => {
+                            if (game.stats.searchedBoxes.includes(index)) {
+                                game.showFeedback('Empty Box', 'You\'ve already searched this box.');
+                                return;
+                            }
+                            
+                            game.stats.searchedBoxes.push(index);
+                            
+                            if (index === 6) {  // Changed winning position
+                                game.stats.foundArm = true;
+                                game.showFeedback('Found!', 'A compatible cybernetic arm! The neural interface patterns match your emergency port perfectly.');
+                            } else if (index === 11) {  // Changed winning position to last box
+                                game.stats.foundLeg = true;
+                                game.showFeedback('Found!', 'A compatible cybernetic leg! The connection specifications are an exact match.');
+                            } else {
+                                game.showFeedback('Empty Box', 'This box contains incompatible parts. Keep searching.');
+                            }
+                            
+                            if (game.stats.foundArm && game.stats.foundLeg) {
+                                this.levelComplete(game);
+                            }
                         }
-                        
-                        game.stats.searchedBoxes.push(index);
-                        
-                        if (index === 2) { // Arm in box 2
-                            game.stats.foundArm = true;
-                            game.showFeedback('Found!', 'A compatible cybernetic arm!');
-                        } else if (index === 5) { // Leg in box 5
-                            game.stats.foundLeg = true;
-                            game.showFeedback('Found!', 'A compatible cybernetic leg!');
-                        } else {
-                            game.showFeedback('Empty Box', 'Nothing useful here...');
-                        }
-                        
-                        if (game.stats.foundArm && game.stats.foundLeg) {
-                            this.levelComplete(game);
-                        }
-                    }
-                });
-            });
+                    });
+                }
+            }
             
             level2.rooms.storage.hotspots = boxes;
         },
