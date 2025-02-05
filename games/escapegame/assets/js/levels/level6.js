@@ -74,14 +74,14 @@ const level6 = {
             hotspots: [
                 {
                     id: 'vale',
-                    class: 'character clickable-image',
+                    class: 'character clickable-area',
                     style: {
                         left: '40%',
                         top: '30%',
                         width: '20%',
-                        height: '50%'
+                        height: '50%',
+                        cursor: 'pointer'
                     },
-                    image: 'assets/images/characters/vale_wounded.png',
                     action: (game) => {
                         game.showFeedback(
                             'Choose Vale\'s Fate',
@@ -98,26 +98,6 @@ const level6 = {
                             <button class="btn cyber-btn me-2" onclick="level6.mechanics.chooseEnding(2)">Arrest</button>
                             <button class="btn cyber-btn" onclick="level6.mechanics.chooseEnding(3)">Control</button>
                         `;
-                    }
-                },
-                {
-                    id: 'alarm',
-                    class: 'terminal clickable-image',
-                    style: {
-                        left: '10%',
-                        top: '40%',
-                        width: '15%',
-                        height: '20%'
-                    },
-                    image: 'assets/images/items/alarm.png',
-                    action: (game) => {
-                        if (!game.stats.alarmTriggered) {
-                            game.stats.alarmTriggered = true;
-                            game.showFeedback(
-                                'Warning',
-                                'Building security has been alerted. You need to make your choice quickly!'
-                            );
-                        }
                     }
                 }
             ]

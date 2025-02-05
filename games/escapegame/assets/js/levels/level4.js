@@ -121,14 +121,14 @@ const level4 = {
             hotspots: [
                 {
                     id: 'computer',
-                    class: 'terminal clickable-image',
+                    class: 'terminal clickable-area',
                     style: {
                         left: '40%',
                         top: '40%',
                         width: '20%',
-                        height: '20%'
+                        height: '20%',
+                        cursor: 'pointer'
                     },
-                    image: 'assets/images/items/ceo_computer.png',
                     action: (game) => {
                         if (!game.stats.foundEvidence) {
                             game.stats.foundEvidence = true;
@@ -151,14 +151,14 @@ const level4 = {
                 },
                 {
                     id: 'safe',
-                    class: 'safe clickable-image',
+                    class: 'safe clickable-area',
                     style: {
                         left: '70%',
                         top: '50%',
                         width: '15%',
-                        height: '30%'
+                        height: '30%',
+                        cursor: 'pointer'
                     },
-                    image: 'assets/images/items/safe.png',
                     action: (game) => {
                         if (!game.stats.foundSchematic) {
                             game.stats.foundSchematic = true;

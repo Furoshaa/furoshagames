@@ -68,14 +68,14 @@ const level5 = {
             hotspots: [
                 {
                     id: 'security_hub',
-                    class: 'terminal clickable-image',
+                    class: 'terminal clickable-area',
                     style: {
                         left: '15%',
                         top: '40%',
                         width: '15%',
-                        height: '20%'
+                        height: '20%',
+                        cursor: 'pointer'
                     },
-                    image: 'assets/images/items/security_hub.png',
                     action: (game) => {
                         if (!game.stats.securityBypass) {
                             game.showFeedback(
@@ -92,14 +92,14 @@ const level5 = {
                 },
                 {
                     id: 'power_panel',
-                    class: 'panel clickable-image',
+                    class: 'panel clickable-area',
                     style: {
                         left: '75%',
                         top: '30%',
                         width: '15%',
-                        height: '30%'
+                        height: '30%',
+                        cursor: 'pointer'
                     },
-                    image: 'assets/images/items/power_panel.png',
                     action: (game) => {
                         if (!game.stats.powerDisabled) {
                             game.stats.powerDisabled = true;
@@ -119,14 +119,14 @@ const level5 = {
             hotspots: [
                 {
                     id: 'panic_room',
-                    class: 'door clickable-image',
+                    class: 'door clickable-area',
                     style: {
                         left: '40%',
                         top: '20%',
                         width: '20%',
-                        height: '60%'
+                        height: '60%',
+                        cursor: 'pointer'
                     },
-                    image: 'assets/images/items/panic_door.png',
                     locked: true,
                     action: (game) => {
                         if (this.locked) {
