@@ -84,7 +84,6 @@ const level3 = {
                         height: '60%',
                         cursor: 'pointer' // Add cursor pointer to make it clear it's interactive
                     },
-                    // Removed the 'image' property since we don't want to overlay an image
                     action: (game) => {
                         const hasCard = game.stats.inventory.find(i => i.id === 'keycard');
                         if (hasCard) {
@@ -102,14 +101,14 @@ const level3 = {
             hotspots: [
                 {
                     id: 'computer',
-                    class: 'terminal clickable-image',
+                    class: 'terminal clickable-area',
                     style: {
-                        left: '20%',
-                        top: '40%',
+                        left: '90%',
+                        top: '35%',
                         width: '15%',
-                        height: '20%'
+                        height: '20%',
+                        cursor: 'pointer' // Add cursor pointer to make it clear it's interactive
                     },
-                    image: 'assets/images/items/computer.png',
                     action: (game) => {
                         if (!game.stats.computerHacked) {
                             game.showFeedback(
@@ -136,14 +135,14 @@ const level3 = {
                 },
                 {
                     id: 'door',
-                    class: 'elevator-door clickable-image',
+                    class: 'elevator-door clickable-area',
                     style: {
-                        left: '70%',
+                        left: '20%',
                         top: '30%',
                         width: '20%',
-                        height: '50%'
+                        height: '70%',
+                        cursor: 'pointer' // Add cursor pointer to make it clear it's interactive
                     },
-                    image: 'assets/images/items/elevator.png',
                     action: (game) => {
                         const hasCode = game.stats.inventory.find(i => i.id === 'security_code');
                         if (hasCode) {

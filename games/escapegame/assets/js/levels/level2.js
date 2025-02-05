@@ -49,15 +49,14 @@ const level2 = {
             hotspots: [
                 {
                     id: 'door',
-                    class: 'storage-door clickable-image',
+                    class: 'storage-door clickable-area',
                     style: {
-                        left: '30%',
-                        top: '30%',
-                        width: '20%',
-                        height: '40%',
+                        left: '37%',
+                        top: '41%',
+                        width: '6%',
+                        height: '19%',
                         cursor: 'pointer'
                     },
-                    image: 'assets/images/items/door_real.jpg',
                     action: (game) => {
                         game.showFeedback(
                             'Storage Room',
