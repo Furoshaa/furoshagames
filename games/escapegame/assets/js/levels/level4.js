@@ -69,14 +69,14 @@ const level4 = {
             hotspots: [
                 {
                     id: 'security_panel',
-                    class: 'terminal clickable-image',
+                    class: 'terminal clickable-area',
                     style: {
                         left: '10%',
                         top: '40%',
                         width: '15%',
-                        height: '20%'
+                        height: '20%',
+                        cursor: 'pointer'
                     },
-                    image: 'assets/images/items/security_panel.png',
                     action: (game) => {
                         if (!game.stats.securityDisabled) {
                             game.showFeedback(
@@ -97,14 +97,14 @@ const level4 = {
                 },
                 {
                     id: 'ceo_office',
-                    class: 'door clickable-image',
+                    class: 'door clickable-area',
                     style: {
                         left: '60%',
                         top: '30%',
                         width: '20%',
-                        height: '50%'
+                        height: '50%',
+                        cursor: 'pointer'
                     },
-                    image: 'assets/images/items/ceo_door.png',
                     locked: true,
                     action: (game) => {
                         if (this.locked) {
