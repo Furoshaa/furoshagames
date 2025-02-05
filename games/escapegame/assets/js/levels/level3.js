@@ -78,7 +78,7 @@ const level3 = {
                     id: 'door',
                     class: 'main-door clickable-area', // Changed from clickable-image to clickable-area
                     style: {
-                        left: '40%',
+                        left: '45%',
                         top: '20%',
                         width: '20%',
                         height: '60%',
@@ -137,10 +137,10 @@ const level3 = {
                     id: 'door',
                     class: 'elevator-door clickable-area',
                     style: {
-                        left: '20%',
-                        top: '30%',
-                        width: '20%',
-                        height: '70%',
+                        left: '18%',
+                        top: '18%',
+                        width: '15%',
+                        height: '60%',
                         cursor: 'pointer' // Add cursor pointer to make it clear it's interactive
                     },
                     action: (game) => {
