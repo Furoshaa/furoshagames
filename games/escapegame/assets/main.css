@@ -199,6 +199,19 @@
     /* Remove the green border and shadow effects */
 }
 
+/* Add these new styles for clickable areas */
+.clickable-area {
+    position: absolute;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.clickable-area:hover {
+    background: rgba(0, 255, 119, 0.1);
+    box-shadow: 0 0 10px rgba(0, 255, 119, 0.2);
+    backdrop-filter: blur(2px);
+}
+
 .status-grid {
     display: grid;
     gap: 1rem;

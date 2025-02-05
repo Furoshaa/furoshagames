@@ -76,14 +76,15 @@ const level3 = {
             hotspots: [
                 {
                     id: 'door',
-                    class: 'main-door clickable-image',
+                    class: 'main-door clickable-area', // Changed from clickable-image to clickable-area
                     style: {
                         left: '40%',
                         top: '20%',
                         width: '20%',
-                        height: '60%'
+                        height: '60%',
+                        cursor: 'pointer' // Add cursor pointer to make it clear it's interactive
                     },
-                    image: 'assets/images/items/security_door.png',
+                    // Removed the 'image' property since we don't want to overlay an image
                     action: (game) => {
                         const hasCard = game.stats.inventory.find(i => i.id === 'keycard');
                         if (hasCard) {
