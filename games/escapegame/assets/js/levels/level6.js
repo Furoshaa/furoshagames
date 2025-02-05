@@ -46,8 +46,7 @@ const level6 = {
                 type: 'data'
             }
         ],
-        ending: null,
-        alarmTriggered: false
+        ending: null
     },
     ui: {
         rightPanel: {
