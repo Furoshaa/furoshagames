@@ -31,6 +31,9 @@ createApp({
         },
         showFeedback(title, message, buttonText = 'Continue') {
             this.feedback = { title, message, buttonText };
+            if (!this.feedbackModal) {
+                this.feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+            }
             this.feedbackModal.show();
         },
         closeFeedback() {

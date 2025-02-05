@@ -158,7 +158,7 @@ const level5 = {
         onStart(game) {
             window.gameApp = window.gameApp || {};
             window.gameApp.examineItem = (itemId) => this.examineItem(game, itemId);
-            game.currentRoom = this.rooms.penthouseEntry;
+            game.currentRoom = level5.rooms.penthouseEntry; // Changed from this.rooms
         }
     }
 };

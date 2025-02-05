@@ -153,22 +153,47 @@ const level6 = {
                 game.showFeedback(item.name, item.description);
             }
         },
-        chooseEnding(choice) {
+        chooseEnding(choiceNum) {
             const game = window.gameApp;
-            game.stats.ending = choice;
-            game.currentStory = this.endings[choice];
-            game.showStory = true;
-            // Reset modal footer
-            document.querySelector('.modal-footer').innerHTML = `
-                <button class="btn cyber-btn" onclick="window.gameApp.closeFeedback()">
-                    Continue
-                </button>
-            `;
+            const ending = level6.endings[choiceNum];
+            
+            // Close the choice modal first
+            const modalEl = document.getElementById('feedbackModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+
+            // Short delay to ensure modal is closed
+            setTimeout(() => {
+                // Update the story directly
+                game.showStory = true;
+                game.currentStory = {
+                    title: ending.title,
+                    content: `${ending.content}<br><br>
+                        <div class="cyber-text mt-4">
+                            MISSION STATUS: COMPLETE<br>
+                            ------------------------------<br>
+                            Ending Achieved: ${ending.title}<br>
+                            ------------------------------<br>
+                            Thank you for playing Cyberpunk Awakening
+                        </div>`,
+                    buttonText: 'Return to Main Menu'
+                };
+
+                // Set up return to menu button
+                Vue.nextTick(() => {
+                    const storyButton = document.querySelector('.story-panel .cyber-btn');
+                    if (storyButton) {
+                        storyButton.onclick = () => window.location.href = '../../index.php';
+                    }
+                });
+            }, 300);
         },
         onStart(game) {
-            window.gameApp = window.gameApp || {};
+            window.gameApp = game;  // Store the entire game instance
             window.gameApp.examineItem = (itemId) => this.examineItem(game, itemId);
-            game.currentRoom = this.rooms.valeConfrontation;
+            game.currentRoom = level6.rooms.valeConfrontation;
         }
     }
 };
