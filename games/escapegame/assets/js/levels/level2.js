@@ -119,15 +119,13 @@ const level2 = {
                             if (index === 6) {  // Changed winning position
                                 game.stats.foundArm = true;
                                 game.showFeedback('Found!', 'A compatible cybernetic arm! The neural interface patterns match your emergency port perfectly.');
+                                this.checkCompletion(game);  // Add this line
                             } else if (index === 11) {  // Changed winning position to last box
                                 game.stats.foundLeg = true;
                                 game.showFeedback('Found!', 'A compatible cybernetic leg! The connection specifications are an exact match.');
+                                this.checkCompletion(game);  // Add this line
                             } else {
                                 game.showFeedback('Empty Box', 'This box contains incompatible parts. Keep searching.');
-                            }
-                            
-                            if (game.stats.foundArm && game.stats.foundLeg) {
-                                this.levelComplete(game);
                             }
                         }
                     });
@@ -135,6 +133,14 @@ const level2 = {
             }
             
             level2.rooms.storage.hotspots = boxes;
+        },
+        checkCompletion(game) {
+            if (game.stats.foundArm && game.stats.foundLeg) {
+                // Add a small delay to ensure the feedback modal is closed
+                setTimeout(() => {
+                    game.loadLevel(3);
+                }, 100);
+            }
         },
         generateRandomPositions(count) {
             const positions = [];
@@ -147,14 +153,7 @@ const level2 = {
             return positions;
         },
         levelComplete(game) {
-            game.currentStory = {
-                title: 'Parts Acquired',
-                content: `Perfect matches. These must have been meant for someone else, 
-                but right now, they're exactly what you need. Time to get back to the 
-                operating table and install them.`,
-                buttonText: 'Continue to Level 3'
-            };
-            game.showStory = true;
+            game.loadLevel(3); // Changed from setting currentStory to directly loading level 3
         },
         onStart(game) {
             this.generateBoxes();

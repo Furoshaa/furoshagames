@@ -47,16 +47,33 @@ createApp({
                     break;
                 case 2:
                     this.currentLevelData = level2;
-                    if (this.currentLevelData.mechanics.onStart) {
-                        this.currentLevelData.mechanics.onStart(this);
-                    }
+                    break;
+                case 3:
+                    this.currentLevelData = level3;
+                    break;
+                case 4:
+                    this.currentLevelData = level4;
+                    break;
+                case 5:
+                    this.currentLevelData = level5;
+                    break;
+                case 6:
+                    this.currentLevelData = level6;
                     break;
             }
+            
+            // Initialize stats before calling onStart
+            this.stats = { ...this.currentLevelData.stats };
             this.showStory = true;
             this.storyProgress = 0;
             this.currentStory = this.currentLevelData.initialStory;
-            this.stats = { ...this.currentLevelData.stats };
+            this.currentRoom = null;  // Reset room
             this.currentLevel = levelNumber;
+
+            // Call onStart after initialization
+            if (this.currentLevelData.mechanics.onStart) {
+                this.currentLevelData.mechanics.onStart(this);
+            }
         },
         progressStory() {
             // For procedure story
@@ -79,7 +96,10 @@ createApp({
                 this.currentStory = this.currentLevelData.story[this.storyProgress];
             } else {
                 this.showStory = false;
-                this.currentRoom = this.currentLevelData.rooms.clinic;
+                // Use the first room defined in the level
+                const firstRoomKey = Object.keys(this.currentLevelData.rooms)[0];
+                this.currentRoom = this.currentLevelData.rooms[firstRoomKey];
+                
                 if (this.currentLevelData.mechanics.onRoomEnter) {
                     this.currentLevelData.mechanics.onRoomEnter(this);
                 }

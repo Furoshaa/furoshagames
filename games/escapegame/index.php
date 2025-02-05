@@ -90,6 +90,10 @@
 
     <script src="assets/js/levels/level1.js?v=1"></script>
     <script src="assets/js/levels/level2.js?v=1"></script>
+    <script src="assets/js/levels/level3.js?v=1"></script>
+    <script src="assets/js/levels/level4.js?v=1"></script>
+    <script src="assets/js/levels/level5.js?v=1"></script>
+    <script src="assets/js/levels/level6.js?v=1"></script>
     <script src="assets/js/game.js?v=1"></script>
 </body>
 </html>
