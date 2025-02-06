@@ -310,3 +310,101 @@
     height: 100%;
     object-fit: contain;
 }
+
+/* Keypad Styles */
+.keypad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+}
+
+.keypad-display {
+    border: 1px solid #00ff00;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    letter-spacing: 5px;
+}
+
+/* Hacking Minigame Styles */
+.hack-grid {
+    display: grid;
+    gap: 5px;
+}
+
+.hack-row {
+    display: flex;
+    justify-content: center;
+}
+
+.hack-row button {
+    width: 50px;
+    height: 50px;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s ease;
+}
+
+.hack-row button:disabled {
+    opacity: 0.5;
+    background-color: #333;
+    border-color: #666;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.hack-row button.selected {
+    background: rgba(0, 255, 0, 0.3);
+    border-color: #00ff00;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+/* Combat System Styles */
+.health-bar {
+    color: #00ff00;
+}
+
+.progress {
+    height: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #00ff00;
+}
+
+.combat-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+/* Add animations for combat */
+@keyframes damage-flash {
+    0% { background: rgba(255, 0, 0, 0.5); }
+    100% { background: transparent; }
+}
+
+.damage-taken {
+    animation: damage-flash 0.3s;
+}
+
+/* Large Email Modal Styles */
+.terminal-interface {
+    min-height: 60vh;
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+#emailModal .modal-content {
+    background: rgba(0, 0, 0, 0.95);
+}
+
+#emailModal .modal-body {
+    padding: 0;
+    max-height: 80vh;
+}
+
+#emailModal .modal-dialog {
+    max-width: 80vw;
+}

@@ -21,28 +21,14 @@ const level4 = {
         }
     ],
     stats: {
-        inventory: [
-            // Carry over items from level 3
-            {
-                id: 'cyberarm',
-                name: 'Military Grade Cyber-Arm',
-                image: 'assets/images/items/cyberarm.png',
-                description: 'Enhanced strength and precision. Can force open weak doors.',
-                type: 'equipped',
-                abilities: ['strength']
-            },
-            {
-                id: 'cyberleg',
-                name: 'Military Grade Cyber-Leg',
-                image: 'assets/images/items/cyberleg.png',
-                description: 'Enhanced mobility and jump capability.',
-                type: 'equipped',
-                abilities: ['jump']
-            }
-        ],
+        inventory: [], // Remove initial inventory, will be inherited from previous level
         securityDisabled: false,
         foundSchematic: false,
-        foundEvidence: false
+        foundEvidence: false,
+        hasComputerHint: false,
+        hasSafeHint: false,
+        hasAccessedEmails: false,
+        computerUnlocked: false
     },
     ui: {
         rightPanel: {
@@ -71,27 +57,32 @@ const level4 = {
                     id: 'security_panel',
                     class: 'terminal clickable-area',
                     style: {
-                        left: '10%',
-                        top: '40%',
-                        width: '15%',
-                        height: '20%',
+                        left: '27%',
+                        top: '28%',
+                        width: '8%',
+                        height: '27%',
                         cursor: 'pointer'
                     },
                     action: (game) => {
                         if (!game.stats.securityDisabled) {
-                            game.showFeedback(
-                                'Security System',
-                                `<div class="cyber-text">SECURITY OVERRIDE<br>
-                                -------------<br>
-                                Initiating neural interface hack...</div>`,
-                                'Execute'
-                            );
-                            game.stats.securityDisabled = true;
-                            // Enable access to CEO office immediately after feedback closes
-                            game.feedbackModal._element.addEventListener('hidden.bs.modal', () => {
-                                level4.rooms.executiveFloor.hotspots[1].locked = false;
-                                game.updateUI();
-                            }, { once: true });
+                            // Initialize hacking minigame with complex sequence
+                            game.initializeHacking({
+                                grid: [
+                                    ['55', 'E9', '1C', 'A7'],
+                                    ['FF', 'BD', '2F', 'E9'],
+                                    ['1C', 'A7', '55', 'BD'],
+                                    ['2F', 'E9', 'FF', '1C']
+                                ],
+                                target: ['FF', 'E9', '1C'],
+                                onSuccess: () => {
+                                    game.stats.securityDisabled = true;
+                                    game.showFeedback('Security Disabled', 'Main security systems bypassed. CEO office accessible.');
+                                    level4.rooms.executiveFloor.hotspots[1].locked = false;
+                                },
+                                onFailure: () => {
+                                    game.showFeedback('Access Denied', 'Security alert level increased. Try a different sequence.');
+                                }
+                            });
                         }
                     }
                 },
@@ -99,16 +90,15 @@ const level4 = {
                     id: 'ceo_office',
                     class: 'door clickable-area',
                     style: {
-                        left: '60%',
-                        top: '30%',
-                        width: '20%',
-                        height: '50%',
+                        left: '63%',
+                        top: '24%',
+                        width: '8%',
+                        height: '60%',
                         cursor: 'pointer'
                     },
-                    locked: true,
                     action: (game) => {
-                        if (this.locked) {
-                            game.showFeedback('Locked', 'The security system must be disabled first.');
+                        if (!game.stats.securityDisabled) {
+                            game.showFeedback('Locked', 'The door is locked. The security system must be disabled first.');
                             return;
                         }
                         game.currentRoom = level4.rooms.ceoOffice;
@@ -120,32 +110,73 @@ const level4 = {
             background: 'assets/images/rooms/ceo_office.jpg',
             hotspots: [
                 {
-                    id: 'computer',
-                    class: 'terminal clickable-area',
+                    id: 'drawer',
+                    class: 'drawer clickable-area',
                     style: {
-                        left: '40%',
-                        top: '40%',
-                        width: '20%',
-                        height: '20%',
+                        left: '49%',
+                        top: '70%',
+                        width: '10%',
+                        height: '15%',
                         cursor: 'pointer'
                     },
                     action: (game) => {
-                        if (!game.stats.foundEvidence) {
-                            game.stats.foundEvidence = true;
+                        if (!game.stats.hasComputerHint) {
+                            game.stats.hasComputerHint = true;
                             game.stats.inventory.push({
-                                id: 'evidence',
-                                name: 'Termination Order',
-                                image: 'assets/images/items/document.png',
-                                description: 'Signed order for your termination by CEO Marcus Vale.',
+                                id: 'post_it',
+                                name: 'Post-it Note',
+                                image: 'assets/images/items/note.png',
+                                description: 'A note reading: "V, stop using your daughter\'s birthday as your password! You are a CEO, not a basic IT beginner."',
                                 type: 'data'
                             });
-                            game.showFeedback(
-                                'Found Evidence',
-                                'You find the termination order. It was signed by CEO Marcus Vale himself.'
-                            );
-                            game.feedbackModal._element.addEventListener('hidden.bs.modal', () => {
-                                level4.mechanics.checkCompletion(game);
-                            }, { once: true });
+                            game.showFeedback('Found Item', 'You found a post-it note in the drawer.');
+                        }
+                    }
+                },
+                {
+                    id: 'photo',
+                    class: 'photo clickable-image',
+                    style: {
+                        left: '1%',
+                        top: '53%',
+                        width: '20%',
+                        height: '13%',
+                        cursor: 'pointer'
+                    },
+                    image: 'assets/images/items/vales_daughter.jpg',
+                    action: (game) => {
+                        if (game.stats.hasComputerHint) {
+                            game.showFeedback('Family Photo', 'A photo of Vale with his daughter. The frame is engraved: "Sarah\'s 7th Birthday - 07/24/19"');
+                        } else {
+                            game.showFeedback('Family Photo', 'A family photo in an engraved frame.');
+                        }
+                    }
+                },
+                {
+                    id: 'computer',
+                    class: 'terminal clickable-area',
+                    style: {
+                        left: '15%',
+                        top: '30%',
+                        width: '23%',
+                        height: '17%',
+                        cursor: 'pointer'
+                    },
+                    action: (game) => {
+                        if (!game.stats.computerUnlocked) {
+                            game.initializeKeypad({
+                                correctCode: '0724', // Sarah's birthday without year
+                                onSuccess: () => {
+                                    game.stats.computerUnlocked = true;
+                                    level4.mechanics.showComputerContents(game);
+                                },
+                                onFailure: () => {
+                                    game.showFeedback('Access Denied', 'Incorrect password. Security notified.');
+                                },
+                                maxAttempts: 3
+                            });
+                        } else {
+                            level4.mechanics.showComputerContents(game);
                         }
                     }
                 },
@@ -153,29 +184,39 @@ const level4 = {
                     id: 'safe',
                     class: 'safe clickable-area',
                     style: {
-                        left: '70%',
-                        top: '50%',
-                        width: '15%',
-                        height: '30%',
+                        left: '65%',
+                        top: '35%',
+                        width: '13%',
+                        height: '22%',
                         cursor: 'pointer'
                     },
                     action: (game) => {
                         if (!game.stats.foundSchematic) {
-                            game.stats.foundSchematic = true;
-                            game.stats.inventory.push({
-                                id: 'mantis_schematic',
-                                name: 'Mantis Blade Schematic',
-                                image: 'assets/images/items/schematic.png',
-                                description: 'Advanced weapon modification for cyber-arms.',
-                                type: 'upgrade'
+                            if (!game.stats.hasSafeHint) {
+                                game.showFeedback('Safe', 'The safe requires a 4-digit code.');
+                                return;
+                            }
+                            game.initializeKeypad({
+                                correctCode: '7132', // Building number backwards
+                                onSuccess: () => {
+                                    game.stats.foundSchematic = true;
+                                    game.stats.inventory.push({
+                                        id: 'mantis_schematic',
+                                        name: 'Mantis Blade Schematic',
+                                        image: 'assets/images/items/schematic.png',
+                                        description: 'Advanced weapon modification for cyber-arms.',
+                                        type: 'upgrade'
+                                    });
+                                    game.showFeedback('Weapon Upgrade Found', 'You found schematics for an advanced cyber-arm weapon modification: Mantis Blades.');
+                                    game.feedbackModal._element.addEventListener('hidden.bs.modal', () => {
+                                        level4.mechanics.checkCompletion(game);
+                                    }, { once: true });
+                                },
+                                onFailure: () => {
+                                    game.showFeedback('Access Denied', 'Incorrect safe code.');
+                                },
+                                maxAttempts: 3
                             });
-                            game.showFeedback(
-                                'Weapon Upgrade Found',
-                                'You found schematics for an advanced cyber-arm weapon modification: Mantis Blades.'
-                            );
-                            game.feedbackModal._element.addEventListener('hidden.bs.modal', () => {
-                                level4.mechanics.checkCompletion(game);
-                            }, { once: true });
                         }
                     }
                 }
@@ -200,6 +241,51 @@ const level4 = {
             window.gameApp = window.gameApp || {};
             window.gameApp.examineItem = (itemId) => this.examineItem(game, itemId);
             game.currentRoom = level4.rooms.executiveFloor;
+        },
+        showComputerContents(game) {
+            const emailContent = `
+                <div class="cyber-text">
+                    <h5>EMAIL INBOX</h5>
+                    -------------------------------------------------------------------------------------------<br>
+
+                    [SECURITY] Safe Installation Report<br>
+                    From: security@nemesiscorp.com<br>
+                    To: m.vale@nemesiscorp.com<br>
+                    ---------------<br><br>
+                    Mr. Vale,<br><br>
+                    The new safe has been installed in your office. As requested, we've 
+                    implemented a unique coding system based on the corporation's founding principles.<br><br>
+                    The first two digits represent our founding value: "71" - Advancement through Technology.<br><br>
+                    For the remaining digits, please refer to Protocol 13, which states that all executive 
+                    codes must incorporate their respective floor numbers in reverse order. As your office 
+                    is on the 23rd floor, this completes your unique safe combination.<br><br>
+                    Please memorize this information and delete this email.<br><br>
+                    Security Team<br><br>
+
+                    --------------------------------------------------------------<br>
+
+                    [HR] Annual Security Audit<br>
+                    From: hr@nemesiscorp.com<br>
+                    To: all-staff@nemesiscorp.com<br>
+                    ---------------<br>
+                    REMINDER: The annual security audit is next week. Please ensure all sensitive 
+                    documents are properly secured in designated safes. Remember to follow Protocol 32 
+                    for all security measures.<br><br>
+                </div>`;
+
+            if (!game.stats.foundEvidence) {
+                game.stats.foundEvidence = true;
+                game.stats.hasSafeHint = true;
+                game.stats.inventory.push({
+                    id: 'evidence',
+                    name: 'Termination Order',
+                    image: 'assets/images/items/document.png',
+                    description: 'Signed order for your termination by CEO Marcus Vale.',
+                    type: 'data'
+                });
+            }
+
+            game.showEmailTerminal(emailContent);
         }
     }
 };

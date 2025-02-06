@@ -15,7 +15,17 @@ createApp({
             currentStory: level1.initialStory,
             currentRoom: null,
             storyProgress: 0,
-            isGameOver: false
+            isGameOver: false,
+            keypadInput: '',
+            keypadConfig: null,
+            hackingGrid: [],
+            hackingTarget: [],
+            hackingSequence: [],
+            lastSelectedCell: null,
+            playerHealth: 100,
+            enemyHealth: 100,
+            combatState: null,
+            emailContent: ''
         }
     },
     mounted() {
@@ -44,6 +54,9 @@ createApp({
         },
         loadLevel(levelNumber) {
             console.log('Loading level:', levelNumber); // Debug log
+            // Store current inventory before loading new level
+            const currentInventory = this.stats.inventory || [];
+            
             switch(levelNumber) {
                 case 1:
                     this.currentLevelData = level1;
@@ -65,8 +78,11 @@ createApp({
                     break;
             }
             
-            // Initialize stats before calling onStart
-            this.stats = { ...this.currentLevelData.stats };
+            // Initialize stats but preserve inventory
+            const newStats = { ...this.currentLevelData.stats };
+            newStats.inventory = currentInventory;
+            this.stats = newStats;
+
             this.showStory = true;
             this.storyProgress = 0;
             this.currentStory = this.currentLevelData.initialStory;
@@ -132,6 +148,127 @@ createApp({
         },
         updateUI() {
             this.$forceUpdate();
+        },
+
+        // Keypad methods
+        initializeKeypad(config) {
+            this.keypadInput = '';
+            this.keypadConfig = config;
+            const keypadModal = new bootstrap.Modal(document.getElementById('keypadModal'));
+            keypadModal.show();
+        },
+
+        enterKeypadDigit(digit) {
+            if (this.keypadInput.length < 4) {
+                this.keypadInput += digit;
+            }
+        },
+
+        clearKeypad() {
+            this.keypadInput = '';
+        },
+
+        submitKeypad() {
+            const isCorrect = this.keypadInput === this.keypadConfig.correctCode;
+            const modal = bootstrap.Modal.getInstance(document.getElementById('keypadModal'));
+            modal.hide();
+            
+            if (isCorrect) {
+                this.keypadConfig.onSuccess();
+            } else {
+                this.keypadConfig.onFailure();
+            }
+        },
+
+        // Hacking minigame methods
+        initializeHacking(config) {
+            this.hackingGrid = config.grid;
+            this.hackingTarget = config.target;
+            this.hackingSequence = [];
+            this.lastSelectedCell = null;
+            this.hackingConfig = config;
+            const hackingModal = new bootstrap.Modal(document.getElementById('hackingModal'));
+            hackingModal.show();
+        },
+
+        selectHackingCell(row, col) {
+            const cell = this.hackingGrid[row][col];
+            this.hackingSequence.push(cell);
+            this.lastSelectedCell = { row, col };
+
+            if (this.hackingSequence.length === this.hackingTarget.length) {
+                const isCorrect = this.hackingSequence.every(
+                    (val, idx) => val === this.hackingTarget[idx]
+                );
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('hackingModal'));
+                modal.hide();
+
+                if (isCorrect) {
+                    this.hackingConfig.onSuccess();
+                } else {
+                    this.hackingConfig.onFailure();
+                }
+            }
+        },
+
+        isHackingCellSelectable(row, col) {
+            if (!this.lastSelectedCell) return true;
+            return row === this.lastSelectedCell.row || col === this.lastSelectedCell.col;
+        },
+
+        isHackingCellSelected(row, col) {
+            return this.hackingSequence.includes(this.hackingGrid[row][col]);
+        },
+
+        // Combat system methods
+        initializeCombat(config) {
+            this.playerHealth = 100;
+            this.enemyHealth = 100;
+            this.combatState = config;
+            const combatModal = new bootstrap.Modal(document.getElementById('combatModal'));
+            combatModal.show();
+        },
+
+        executeCombatMove(moveType) {
+            let playerDamage = 0;
+            let enemyDamage = 0;
+
+            // Calculate damages based on move type
+            switch(moveType) {
+                case 'quick':
+                    playerDamage = Math.floor(Math.random() * 15) + 5;
+                    enemyDamage = Math.floor(Math.random() * 20) + 5;
+                    break;
+                case 'heavy':
+                    playerDamage = Math.floor(Math.random() * 25) + 10;
+                    enemyDamage = Math.floor(Math.random() * 30) + 10;
+                    break;
+                case 'parry':
+                    playerDamage = Math.floor(Math.random() * 10);
+                    enemyDamage = Math.floor(Math.random() * 5);
+                    break;
+            }
+
+            this.enemyHealth = Math.max(0, this.enemyHealth - playerDamage);
+            this.playerHealth = Math.max(0, this.playerHealth - enemyDamage);
+
+            if (this.enemyHealth <= 0 || this.playerHealth <= 0) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('combatModal'));
+                modal.hide();
+
+                if (this.enemyHealth <= 0) {
+                    this.combatState.onVictory();
+                } else {
+                    this.combatState.onDefeat();
+                }
+            }
+        },
+
+        showEmailTerminal(content) {
+            this.emailContent = content;
+            const emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
+            emailModal.show();
         }
     },
     watch: {

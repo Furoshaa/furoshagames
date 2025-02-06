@@ -1,54 +1,39 @@
 const level5 = {
     initialStory: {
-        title: 'The Upgrade',
-        content: `A back-alley ripperdoc installs the mantis blade modification. Your cyber-arm 
-        splits and reforms, deadly blades extending from your forearm.<br><br>
+        title: 'The Server Sanctum',
+        content: `With the mantis blade schematics installed, you've reached Vale's private server room. 
+        This is where he keeps his most sensitive data - and the access codes to his panic room.<br><br>
         <div class="system-status">
-            <span class="cyber-text">SYSTEM UPDATE:<br>
-            - Mantis Blades installed<br>
-            - Combat protocols activated<br>
-            - Target: Marcus Vale</span>
+            <span class="cyber-text">OBJECTIVES:<br>
+            - Breach the quantum encryption server<br>
+            - Override security lockdown<br>
+            - Download panic room access codes</span>
         </div>`,
-        buttonText: 'Begin Final Approach'
+        buttonText: 'Begin Infiltration'
     },
-    story: [
+    story: [  // Add this story array
         {
-            title: 'The Penthouse',
-            content: `Vale's private penthouse occupies the top three floors of Nemesis Tower. 
-            Security will be extreme, but you have something they don't expect - 
-            their own military-grade cyber weapons.`,
-            buttonText: 'Proceed'
+            title: 'Neural Connection',
+            content: `The server room hums with the combined processing power of thousands of quantum cores. 
+            Your neural interface detects multiple security layers - this won't be easy.<br><br>
+            You'll need to breach three security nodes before you can access the mainframe. One wrong move 
+            and the whole system goes into lockdown.`,
+            buttonText: 'Start Breach'
         }
     ],
     stats: {
-        inventory: [
-            {
-                id: 'cyberarm_mantis',
-                name: 'Cyber-Arm with Mantis Blades',
-                image: 'assets/images/items/cyberarm_mantis.png',
-                description: 'Military-grade cyber-arm enhanced with deadly mantis blades.',
-                type: 'equipped',
-                abilities: ['strength', 'combat']
-            },
-            {
-                id: 'cyberleg',
-                name: 'Military Grade Cyber-Leg',
-                image: 'assets/images/items/cyberleg.png',
-                description: 'Enhanced mobility and jump capability.',
-                type: 'equipped',
-                abilities: ['jump']
-            }
-        ],
-        securityBypass: false,
-        powerDisabled: false,
-        foundVale: false
+        inventory: [],
+        serversBypassed: 0,
+        mainframeHacked: false,
+        codesDownloaded: false,
+        currentChallenge: 0 // Track which challenge we're on
     },
     ui: {
         rightPanel: {
             render(game) {
                 return `
                     <div class="cyber-panel p-3">
-                        <h4 class="neon-text mb-3">Inventory</h4>
+                        <h4 class="neon-text mb-3">System Status</h4>
                         <div class="inventory-grid">
                             ${game.stats.inventory.map(item => `
                                 <div class="inventory-item ${item.type}" onclick="window.gameApp.examineItem('${item.id}')">
@@ -57,108 +42,167 @@ const level5 = {
                                 </div>
                             `).join('')}
                         </div>
+                        <div class="mt-4">
+                            <div class="status-grid">
+                                <div class="status-item ${game.stats.mainframeHacked ? 'found' : ''}">
+                                    Mainframe: ${game.stats.mainframeHacked ? 'ACCESSED' : 'LOCKED'}
+                                </div>
+                                <div class="status-item ${game.stats.serversBypassed === 3 ? 'found' : ''}">
+                                    Security Nodes: ${game.stats.serversBypassed}/3
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
             }
         }
     },
     rooms: {
-        penthouseEntry: {
-            background: 'assets/images/rooms/penthouse_entry.jpg',
+        serverRoom: {
+            background: 'assets/images/rooms/server_room.jpg',
             hotspots: [
                 {
-                    id: 'security_hub',
+                    id: 'security_terminal',
                     class: 'terminal clickable-area',
                     style: {
-                        left: '15%',
-                        top: '40%',
-                        width: '15%',
-                        height: '20%',
+                        left: '40%',
+                        top: '30%',
+                        width: '20%',
+                        height: '40%',
                         cursor: 'pointer'
                     },
                     action: (game) => {
-                        if (!game.stats.securityBypass) {
-                            game.showFeedback(
-                                'Security Hub',
-                                `<div class="cyber-text">ALERT: Mantis blade signature detected. 
-                                Initiating lockdown...</div>`,
-                                'Override'
-                            );
-                            game.stats.securityBypass = true;
-                            // Check if both security and power are disabled
-                            level5.mechanics.checkEntryComplete(game);
+                        if (game.stats.serversBypassed < 3) {
+                            level5.mechanics.initiateChallenge(game);
                         }
                     }
                 },
                 {
-                    id: 'power_panel',
-                    class: 'panel clickable-area',
+                    id: 'mainframe',
+                    class: 'mainframe clickable-area',
                     style: {
-                        left: '75%',
-                        top: '30%',
-                        width: '15%',
+                        left: '40%',
+                        top: '60%',
+                        width: '20%',
                         height: '30%',
                         cursor: 'pointer'
                     },
                     action: (game) => {
-                        if (!game.stats.powerDisabled) {
-                            game.stats.powerDisabled = true;
+                        if (game.stats.serversBypassed === 3 && !game.stats.codesDownloaded) {
+                            game.stats.codesDownloaded = true;
+                            game.stats.inventory.push({
+                                id: 'panic_codes',
+                                name: 'Panic Room Codes',
+                                image: 'assets/images/items/codes.png',
+                                description: 'Access codes to Vale\'s panic room.',
+                                type: 'data'
+                            });
                             game.showFeedback(
-                                'Power Systems',
-                                'You slice through the power conduits with your mantis blade. Emergency power only.'
+                                'Download Complete',
+                                'Panic room access codes successfully retrieved. Time to pay Vale a visit.'
                             );
-                            // Check if both security and power are disabled
-                            level5.mechanics.checkEntryComplete(game);
+                            game.feedbackModal._element.addEventListener('hidden.bs.modal', () => {
+                                game.loadLevel(6);
+                            }, { once: true });
+                        } else if (game.stats.serversBypassed < 3) {
+                            game.showFeedback('Access Denied', 'All security nodes must be disabled first.');
                         }
-                    }
-                }
-            ]
-        },
-        penthouseMain: {
-            background: 'assets/images/rooms/penthouse_main.jpg',
-            hotspots: [
-                {
-                    id: 'panic_room',
-                    class: 'door clickable-area',
-                    style: {
-                        left: '40%',
-                        top: '20%',
-                        width: '20%',
-                        height: '60%',
-                        cursor: 'pointer'
-                    },
-                    locked: true,
-                    action: (game) => {
-                        if (this.locked) {
-                            game.showFeedback('Locked', 'The panic room is powered by independent systems.');
-                            return;
-                        }
-                        game.stats.foundVale = true;
-                        game.loadLevel(6); // Changed to use loadLevel
                     }
                 }
             ]
         }
     },
     mechanics: {
-        examineItem(game, itemId) {
-            const item = game.stats.inventory.find(i => i.id === itemId);
-            if (item) {
-                game.showFeedback(item.name, item.description);
+        challenges: [
+            {
+                name: 'Primary Firewall',
+                description: 'Breach the primary security layer using the breach protocol.',
+                type: 'hack',
+                config: {
+                    grid: [
+                        ['55', 'E9', '1C', 'A7'],
+                        ['FF', 'BD', '2F', 'E9'],
+                        ['1C', 'A7', '55', 'BD'],
+                        ['2F', 'E9', 'FF', '1C']
+                    ],
+                    target: ['55', 'BD', '1C']
+                }
+            },
+            {
+                name: 'Logic Gate',
+                description: `MATHEMATICAL SEQUENCE LOCK DETECTED<br><br>
+                    Calculate next number in sequence:<br>
+                    2, 6, 12, 20, ?<br><br>
+                    Enter 4-digit answer (pad with zeros)`,
+                type: 'keypad',
+                code: '0030'
+            },
+            {
+                name: 'Binary Lock',
+                description: `BINARY CONVERSION LOCK DETECTED<br><br>
+                    Convert to decimal:<br>
+                    1010 1100<br><br>
+                    Enter 4-digit answer (pad with zeros)`,
+                type: 'keypad',
+                code: '0172'
             }
-        },
-        checkEntryComplete(game) {
-            if (game.stats.securityBypass && game.stats.powerDisabled) {
+        ],
+
+        initiateChallenge(game) {
+            const challenge = this.challenges[game.stats.currentChallenge];
+            
+            const startKeypadChallenge = () => {
+                game.initializeKeypad({
+                    correctCode: challenge.code,
+                    onSuccess: () => this.handleChallengeSuccess(game),
+                    onFailure: () => game.gameOver('Security Alert', 'Incorrect input triggered security lockdown.')
+                });
+            };
+
+            if (challenge.type === 'hack') {
+                game.initializeHacking({
+                    grid: challenge.config.grid,
+                    target: challenge.config.target,
+                    onSuccess: () => this.handleChallengeSuccess(game),
+                    onFailure: () => game.gameOver('Security Alert', 'Incorrect sequence triggered security lockdown.')
+                });
+            } else {
+                // Show description first, then keypad
+                game.showFeedback(
+                    challenge.name,
+                    challenge.description,
+                    'Proceed'
+                );
+                
+                // Wait for feedback to close before showing keypad
                 game.feedbackModal._element.addEventListener('hidden.bs.modal', () => {
-                    game.currentRoom = level5.rooms.penthouseMain;
-                    game.updateUI();
+                    startKeypadChallenge();
                 }, { once: true });
             }
         },
-        onStart(game) {
-            window.gameApp = window.gameApp || {};
-            window.gameApp.examineItem = (itemId) => this.examineItem(game, itemId);
-            game.currentRoom = level5.rooms.penthouseEntry; // Changed from this.rooms
+
+        handleChallengeSuccess(game) {
+            game.stats.serversBypassed++;
+            game.stats.currentChallenge++;
+            
+            const messages = [
+                'Primary security layer disabled.',
+                'Secondary security layer breached.',
+                'Final security layer destroyed. Mainframe access granted.'
+            ];
+
+            game.showFeedback('Access Node Breached', messages[game.stats.serversBypassed - 1]);
+
+            if (game.stats.serversBypassed === 3) {
+                game.showFeedback('All Systems Breached', 'Mainframe access now available. Download the panic room codes.');
+            }
+        },
+
+        checkServerProgress(game) {
+            const progress = game.stats.serversBypassed;
+            if (progress === 3) {
+                game.showFeedback('All Systems Breached', 'Mainframe access now available. Download the panic room codes.');
+            }
         }
     }
 };

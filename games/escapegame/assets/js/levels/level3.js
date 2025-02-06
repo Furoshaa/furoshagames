@@ -24,22 +24,6 @@ const level3 = {
     stats: {
         inventory: [
             {
-                id: 'cyberarm',
-                name: 'Military Grade Cyber-Arm',
-                image: 'assets/images/items/cyberarm.png',
-                description: 'Enhanced strength and precision. Can force open weak doors.',
-                type: 'equipped',
-                abilities: ['strength']
-            },
-            {
-                id: 'cyberleg',
-                name: 'Military Grade Cyber-Leg',
-                image: 'assets/images/items/cyberleg.png',
-                description: 'Enhanced mobility and jump capability.',
-                type: 'equipped',
-                abilities: ['jump']
-            },
-            {
                 id: 'keycard',
                 name: 'Access Card',
                 image: 'assets/images/items/keycard.png',
@@ -107,49 +91,66 @@ const level3 = {
                         top: '35%',
                         width: '15%',
                         height: '20%',
-                        cursor: 'pointer' // Add cursor pointer to make it clear it's interactive
+                        cursor: 'pointer'
                     },
                     action: (game) => {
                         if (!game.stats.computerHacked) {
-                            game.showFeedback(
-                                'Terminal Access',
-                                `<div class="cyber-text">
-                                    SECURITY TERMINAL<br>
-                                    -------------<br>
-                                    1. Security Feeds<br>
-                                    2. Employee Records<br>
-                                    3. Access Logs</div>`,
-                                'Hack System'
-                            );
-                            game.stats.computerHacked = true;
-                            // Add security code to inventory
-                            game.stats.inventory.push({
-                                id: 'security_code',
-                                name: 'Security Code',
-                                image: 'assets/images/items/datafile.png',
-                                description: 'Code for the executive elevator: 3-1-4-7',
-                                type: 'data'
+                            // Initialize hacking minigame
+                            game.initializeHacking({
+                                grid: [
+                                    ['7A', 'BD', 'E4', '1C'],
+                                    ['55', '7A', 'BD', '2F'],
+                                    ['E4', '1C', '55', '7A'],
+                                    ['2F', 'E4', '1C', 'BD']
+                                ],
+                                target: ['7A', 'BD', '1C'],
+                                onSuccess: () => {
+                                    game.stats.computerHacked = true;
+                                    game.stats.inventory.push({
+                                        id: 'security_code',
+                                        name: 'Security Code',
+                                        image: 'assets/images/items/datafile.png',
+                                        description: 'Code for the executive elevator: 3-1-4-7',
+                                        type: 'data'
+                                    });
+                                    game.showFeedback('Access Granted', 'Security codes downloaded. The executive elevator code is: 3-1-4-7');
+                                },
+                                onFailure: () => {
+                                    game.showFeedback('Access Denied', 'Incorrect sequence. Security protocols enhanced.');
+                                }
                             });
                         }
                     }
                 },
                 {
-                    id: 'door',
+                    id: 'elevator',
                     class: 'elevator-door clickable-area',
                     style: {
                         left: '18%',
                         top: '18%',
                         width: '15%',
                         height: '60%',
-                        cursor: 'pointer' // Add cursor pointer to make it clear it's interactive
+                        cursor: 'pointer'
                     },
                     action: (game) => {
                         const hasCode = game.stats.inventory.find(i => i.id === 'security_code');
-                        if (hasCode) {
-                            game.loadLevel(4); // Changed to use loadLevel instead of setting currentStory
-                        } else {
+                        if (!hasCode) {
                             game.showFeedback('Locked', 'The executive elevator requires a security code.');
+                            return;
                         }
+                        
+                        // Initialize keypad
+                        game.initializeKeypad({
+                            correctCode: '3147',
+                            onSuccess: () => {
+                                game.showFeedback('Access Granted', 'Elevator activated. Proceeding to executive level.');
+                                setTimeout(() => game.loadLevel(4), 2000);
+                            },
+                            onFailure: () => {
+                                game.showFeedback('Access Denied', 'Incorrect code. Security alert increased.');
+                            },
+                            maxAttempts: 3
+                        });
                     }
                 }
             ]

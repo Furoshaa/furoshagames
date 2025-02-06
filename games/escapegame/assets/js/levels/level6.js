@@ -21,31 +21,7 @@ const level6 = {
         }
     ],
     stats: {
-        inventory: [
-            {
-                id: 'cyberarm_mantis',
-                name: 'Cyber-Arm with Mantis Blades',
-                image: 'assets/images/items/cyberarm_mantis.png',
-                description: 'Military-grade cyber-arm enhanced with deadly mantis blades.',
-                type: 'equipped',
-                abilities: ['strength', 'combat']
-            },
-            {
-                id: 'cyberleg',
-                name: 'Military Grade Cyber-Leg',
-                image: 'assets/images/items/cyberleg.png',
-                description: 'Enhanced mobility and jump capability.',
-                type: 'equipped',
-                abilities: ['jump']
-            },
-            {
-                id: 'evidence',
-                name: 'Corporate Crimes Evidence',
-                image: 'assets/images/items/evidence.png',
-                description: 'Proof of Vale\'s illegal operations.',
-                type: 'data'
-            }
-        ],
+        inventory: [], // Remove initial inventory, will be inherited from previous level
         ending: null
     },
     ui: {
@@ -82,21 +58,38 @@ const level6 = {
                         cursor: 'pointer'
                     },
                     action: (game) => {
-                        game.showFeedback(
-                            'Choose Vale\'s Fate',
-                            `What will you do with Vale?<br><br>
-                            1. Kill him - Quick justice for what he did to you<br>
-                            2. Spare him - Turn him and the evidence over to authorities<br>
-                            3. Blackmail - Use the evidence to take control of Nemesis Corp`,
-                            'Choose'
-                        );
-                        // Add choice buttons to modal
-                        const modal = document.querySelector('.modal-footer');
-                        modal.innerHTML = `
-                            <button class="btn cyber-btn me-2" onclick="level6.mechanics.chooseEnding(1)">Execute</button>
-                            <button class="btn cyber-btn me-2" onclick="level6.mechanics.chooseEnding(2)">Arrest</button>
-                            <button class="btn cyber-btn" onclick="level6.mechanics.chooseEnding(3)">Control</button>
-                        `;
+                        // Initialize combat with Vale
+                        game.initializeCombat({
+                            onVictory: () => {
+                                game.showFeedback(
+                                    'Victory',
+                                    `Vale lies defeated. Now you must decide his fate.<br><br>
+                                    <button class="btn cyber-btn me-2" onclick="level6.mechanics.chooseEnding(1)">Execute</button>
+                                    <button class="btn cyber-btn me-2" onclick="level6.mechanics.chooseEnding(2)">Arrest</button>
+                                    <button class="btn cyber-btn" onclick="level6.mechanics.chooseEnding(3)">Control</button>`
+                                );
+                            },
+                            onDefeat: () => {
+                                game.gameOver('Defeat', 'Vale\'s security systems overwhelmed you. Game Over.');
+                            },
+                            specialMoves: {
+                                quick: {
+                                    name: 'Quick Strike',
+                                    damage: [5, 15],
+                                    counterChance: 0.3
+                                },
+                                heavy: {
+                                    name: 'Heavy Attack',
+                                    damage: [15, 25],
+                                    counterChance: 0.6
+                                },
+                                parry: {
+                                    name: 'Parry',
+                                    damage: [0, 10],
+                                    counterChance: 0.1
+                                }
+                            }
+                        });
                     }
                 }
             ]
