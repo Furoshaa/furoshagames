@@ -66,9 +66,9 @@ const level5 = {
                     class: 'terminal clickable-area',
                     style: {
                         left: '40%',
-                        top: '30%',
-                        width: '20%',
-                        height: '40%',
+                        top: '48%',
+                        width: '17%',
+                        height: '17%',
                         cursor: 'pointer'
                     },
                     action: (game) => {
@@ -82,9 +82,9 @@ const level5 = {
                     class: 'mainframe clickable-area',
                     style: {
                         left: '40%',
-                        top: '60%',
-                        width: '20%',
-                        height: '30%',
+                        top: '25%',
+                        width: '17%',
+                        height: '18%',
                         cursor: 'pointer'
                     },
                     action: (game) => {
@@ -132,10 +132,10 @@ const level5 = {
                 name: 'Logic Gate',
                 description: `MATHEMATICAL SEQUENCE LOCK DETECTED<br><br>
                     Calculate next number in sequence:<br>
-                    2, 6, 12, 20, ?<br><br>
-                    Enter 4-digit answer (pad with zeros)`,
+                    256, 512, 1024, 2048, ?<br><br>
+                    Enter the next number in sequence`,
                 type: 'keypad',
-                code: '0030'
+                code: '4096'  // Changed to a 4-digit significant number
             },
             {
                 name: 'Binary Lock',

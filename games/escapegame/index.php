@@ -10,6 +10,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body class="bg-dark text-light cyberpunk">
+    <!-- Background Music -->
+    <audio id="bgMusic" loop autoplay>
+        <source src="assets/audio/cyberpunk-bg.mp3" type="audio/mp3">
+    </audio>
+
     <!-- Updated navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
         <div class="container d-flex justify-content-between align-items-center">
@@ -139,32 +144,26 @@
             </div>
         </div>
 
-        <!-- Combat Modal -->
-        <div class="modal fade" id="combatModal" tabindex="-1">
+        <!-- Sequence Challenge Modal -->
+        <div class="modal fade" id="sequenceModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content cyber-modal">
                     <div class="modal-header">
-                        <h5 class="modal-title neon-text">Combat System</h5>
+                        <h5 class="modal-title neon-text">Neural Sequence</h5>
                     </div>
                     <div class="modal-body">
-                        <div class="combat-status mb-3">
-                            <div class="health-bar mb-2">
-                                Player HP: {{ playerHealth }}%
-                                <div class="progress">
-                                    <div class="progress-bar bg-success" :style="{ width: playerHealth + '%' }"></div>
-                                </div>
-                            </div>
-                            <div class="health-bar mb-3">
-                                Enemy HP: {{ enemyHealth }}%
-                                <div class="progress">
-                                    <div class="progress-bar bg-danger" :style="{ width: enemyHealth + '%' }"></div>
-                                </div>
-                            </div>
+                        <div class="sequence-display mb-3">
+                            <div id="sequenceTarget" class="sequence-box"></div>
                         </div>
-                        <div class="combat-controls">
-                            <button @click="executeCombatMove('quick')" class="btn cyber-btn m-1">Quick Strike</button>
-                            <button @click="executeCombatMove('heavy')" class="btn cyber-btn m-1">Heavy Attack</button>
-                            <button @click="executeCombatMove('parry')" class="btn cyber-btn m-1">Parry</button>
+                        <div id="sequenceInput" class="sequence-input" style="display: none;">
+                            <div class="sequence-buttons">
+                                <button @click="inputSequence('RED')" class="btn cyber-btn sequence-btn red">RED</button>
+                                <button @click="inputSequence('BLUE')" class="btn cyber-btn sequence-btn blue">BLUE</button>
+                                <button @click="inputSequence('GREEN')" class="btn cyber-btn sequence-btn green">GREEN</button>
+                            </div>
+                            <div class="current-sequence mt-3">
+                                Current: <span class="cyber-text">{{ currentSequence.join(' ') }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

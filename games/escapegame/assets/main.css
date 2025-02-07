@@ -408,3 +408,52 @@
 #emailModal .modal-dialog {
     max-width: 80vw;
 }
+
+/* Sequence Challenge Styles */
+.sequence-display {
+    height: 100px;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sequence-box {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #00ff77;
+    transition: background-color 0.3s;
+    margin: 0 auto;
+}
+
+.sequence-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.sequence-btn {
+    height: 60px;
+    font-size: 1.2em;
+    margin: 5px;
+}
+
+.sequence-btn.red { 
+    background-color: rgba(255, 0, 0, 0.2); 
+}
+.sequence-btn.blue { 
+    background-color: rgba(0, 119, 255, 0.2);
+}
+.sequence-btn.green { 
+    background-color: rgba(0, 255, 119, 0.2);
+}
+
+.sequence-btn.red:hover { 
+    background-color: rgba(255, 0, 0, 0.4); 
+}
+.sequence-btn.blue:hover { 
+    background-color: rgba(0, 119, 255, 0.4);
+}
+.sequence-btn.green:hover { 
+    background-color: rgba(0, 255, 119, 0.4);
+}

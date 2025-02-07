@@ -25,7 +25,11 @@ createApp({
             playerHealth: 100,
             enemyHealth: 100,
             combatState: null,
-            emailContent: ''
+            emailContent: '',
+            currentSequence: [],
+            targetSequence: [],
+            sequenceConfig: null,
+            isShowingSequence: false
         }
     },
     mounted() {
@@ -269,6 +273,70 @@ createApp({
             this.emailContent = content;
             const emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
             emailModal.show();
+        },
+
+        // Sequence challenge methods
+        initializeSequenceChallenge(config) {
+            this.targetSequence = config.pattern;
+            this.currentSequence = [];
+            this.sequenceConfig = config;
+            this.isShowingSequence = true;
+
+            const sequenceModal = new bootstrap.Modal(document.getElementById('sequenceModal'));
+            sequenceModal.show();
+
+            // Attend que le modal soit complètement affiché
+            document.getElementById('sequenceModal').addEventListener('shown.bs.modal', () => {
+                this.playSequence();
+            }, { once: true });
+        },
+
+        playSequence() {
+            const sequenceBox = document.getElementById('sequenceTarget');
+            const inputDiv = document.getElementById('sequenceInput');
+            inputDiv.style.display = 'none';
+            let index = 0;
+
+            const showColor = () => {
+                if (!this.isShowingSequence) return;
+                
+                if (index < this.targetSequence.length) {
+                    const color = this.targetSequence[index].toLowerCase();
+                    sequenceBox.style.backgroundColor = color;
+                    setTimeout(() => {
+                        sequenceBox.style.backgroundColor = 'transparent';
+                        index++;
+                        setTimeout(showColor, 300);
+                    }, this.sequenceConfig.displayTime);
+                } else {
+                    this.isShowingSequence = false;
+                    inputDiv.style.display = 'block';
+                }
+            };
+
+            // Petit délai avant de commencer la séquence
+            setTimeout(showColor, 1000);
+        },
+
+        inputSequence(color) {
+            if (this.isShowingSequence) return;
+            
+            this.currentSequence.push(color);
+            
+            if (this.currentSequence.length === this.targetSequence.length) {
+                const isCorrect = this.currentSequence.every(
+                    (val, idx) => val === this.targetSequence[idx]
+                );
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('sequenceModal'));
+                modal.hide();
+
+                if (isCorrect) {
+                    this.sequenceConfig.onSuccess();
+                } else {
+                    this.sequenceConfig.onFailure();
+                }
+            }
         }
     },
     watch: {
