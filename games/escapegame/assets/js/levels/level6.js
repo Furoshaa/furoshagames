@@ -102,47 +102,44 @@ const level6 = {
             const game = window.gameApp;
             const ending = level6.endings[choiceNum];
             
-            // Close the choice modal first and remove backdrop
-            const modalEl = document.getElementById('feedbackModal');
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) {
-                modalInstance.hide();
-                // Remove modal backdrop manually
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) {
-                    backdrop.remove();
-                }
-                // Remove modal-open class from body
+            // Fermer proprement le modal
+            const feedbackModal = bootstrap.Modal.getInstance(document.getElementById('feedbackModal'));
+            if (feedbackModal) {
+                feedbackModal.hide();
+                // Nettoyage complet du modal
                 document.body.classList.remove('modal-open');
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
             }
-
-            // Short delay to ensure modal cleanup is complete
-            setTimeout(() => {
-                // Update the story directly
-                game.showStory = true;
-                game.currentStory = {
-                    title: ending.title,
-                    content: `${ending.content}<br><br>
-                        <div class="cyber-text mt-4">
-                            MISSION STATUS: COMPLETE<br>
-                            ------------------------------<br>
-                            Ending Achieved: ${ending.title}<br>
-                            ------------------------------<br>
-                            Thank you for playing Cyberpunk Awakening
-                        </div>`,
-                    buttonText: 'Return to Main Menu'
-                };
-
-                // Set up return to menu button
-                Vue.nextTick(() => {
-                    const storyButton = document.querySelector('.story-panel .cyber-btn');
-                    if (storyButton) {
-                        storyButton.onclick = () => window.location.href = '../../index.php';
-                    }
-                });
-            }, 300);
+            
+            // Sauvegarder via AJAX sans redirection
+            const formData = new FormData();
+            formData.append('chosen_ending', ending.title);
+            
+            fetch('save_record.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            // Afficher l'ending
+            game.showStory = true;
+            game.currentStory = {
+                title: ending.title,
+                content: `${ending.content}<br><br>
+                    <div class='cyber-text mt-4'>
+                        MISSION STATUS: COMPLETE<br>
+                        ------------------------------<br>
+                        Ending Achieved: ${ending.title}<br>
+                        ------------------------------<br>
+                        Thank you for playing Cyberpunk Awakening
+                    </div>`,
+                buttonText: 'Return to Main Menu',
+                onComplete: () => {
+                    window.location.href = '../../index.php';
+                }
+            };
         },
         onStart(game) {
             window.gameApp = game;  // Store the entire game instance

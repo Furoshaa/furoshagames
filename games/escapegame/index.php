@@ -26,12 +26,48 @@
         </div>
     </nav>
 
-    <!-- Auth check -->
+    <!-- Auth check and timer start -->
     <?php
     session_start();
     if (!isset($_SESSION['user_id'])) {
         header('Location: ../../index.php');
         exit();
+    }
+    $_SESSION['game_start_time'] = time();
+
+    // Check if we're showing an ending
+    if (isset($_GET['showEnding'])) {
+        $endingTitle = htmlspecialchars($_GET['showEnding'], ENT_QUOTES, 'UTF-8');
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(() => {
+                    if (typeof window.gameApp !== 'undefined' && typeof level6 !== 'undefined') {
+                        const endingKey = Object.keys(level6.endings).find(k => 
+                            level6.endings[k].title === '" . $endingTitle . "'
+                        );
+                        if (endingKey && level6.endings[endingKey]) {
+                            const ending = level6.endings[endingKey];
+                            window.gameApp.showStory = true;
+                            window.gameApp.currentStory = {
+                                title: ending.title,
+                                content: ending.content + '<br><br>' +
+                                    '<div class=\"cyber-text mt-4\">' +
+                                    'MISSION STATUS: COMPLETE<br>' +
+                                    '------------------------------<br>' +
+                                    'Ending Achieved: ' + ending.title + '<br>' +
+                                    '------------------------------<br>' +
+                                    'Thank you for playing Cyberpunk Awakening' +
+                                    '</div>',
+                                buttonText: 'Return to Main Menu'
+                            };
+                            window.gameApp.currentStory.onComplete = function() {
+                                window.location.href = '../../index.php';
+                            };
+                        }
+                    }
+                }, 1000);
+            });
+        </script>";
     }
     ?>
 

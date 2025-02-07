@@ -48,6 +48,62 @@
                     </div>
                 </div>
             </div>
+
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card bg-dark">
+                        <div class="card-header border-bottom border-light">
+                            <h3 class="text-light mb-0">Recent Completions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Player</th>
+                                            <th>Game</th>
+                                            <th>Ending</th>
+                                            <th>Time</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        require_once 'db_connexion.php';
+                                        $query = $db->query("
+                                            SELECT username, game_name, chosen_ending, 
+                                                   completion_time, completion_date
+                                            FROM gameplay_records
+                                            ORDER BY completion_date DESC
+                                            LIMIT 10
+                                        ");
+                                        
+                                        setlocale(LC_TIME, 'fr_FR.utf8', 'fra');
+                                        
+                                        while($record = $query->fetch()) {
+                                            $minutes = floor($record['completion_time'] / 60);
+                                            $seconds = $record['completion_time'] % 60;
+                                            $time = sprintf("%02d:%02d", $minutes, $seconds);
+                                            
+                                            // Format français : jour/mois/année heure:minute
+                                            $date = date('d/m/Y H:i', strtotime($record['completion_date']));
+                                            
+                                            echo "<tr>
+                                                <td>{$record['username']}</td>
+                                                <td>{$record['game_name']}</td>
+                                                <td>{$record['chosen_ending']}</td>
+                                                <td>{$time}</td>
+                                                <td>{$date}</td>
+                                            </tr>";
+                                        }
+                                        ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Toast Container - Moved to top-center -->
@@ -121,22 +177,6 @@
             </div>
         </div>
 
-
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        
         <!-- Footer -->
         <footer class="bg-dark text-light mt-5 border-top">
             <div class="bg-darker py-3">

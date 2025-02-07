@@ -29,7 +29,9 @@ createApp({
             currentSequence: [],
             targetSequence: [],
             sequenceConfig: null,
-            isShowingSequence: false
+            isShowingSequence: false,
+            gameStartTime: Date.now(),
+            completionTime: 0
         }
     },
     mounted() {
@@ -99,6 +101,11 @@ createApp({
             }
         },
         progressStory() {
+            if (this.currentStory.onComplete) {
+                this.currentStory.onComplete();
+                return;
+            }
+            
             // For procedure story
             if (this.currentStory && this.currentStory.isProcedure) {
                 console.log('In procedure:', this.currentStory.title);
@@ -337,6 +344,38 @@ createApp({
                     this.sequenceConfig.onFailure();
                 }
             }
+        },
+
+        saveGameRecord(endingTitle) {
+            this.completionTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
+            const data = {
+                completion_time: this.completionTime,
+                chosen_ending: endingTitle,
+                game_name: 'Cyberpunk Awakening'
+            };
+            
+            console.log('Saving game record:', data);
+            
+            fetch('save_gameplay.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Save success:', data);
+            })
+            .catch(error => {
+                console.error('Save error:', error);
+            });
         }
     },
     watch: {

@@ -135,13 +135,13 @@ const level5 = {
                     256, 512, 1024, 2048, ?<br><br>
                     Enter the next number in sequence`,
                 type: 'keypad',
-                code: '4096'  // Changed to a 4-digit significant number
+                code: '4096' 
             },
             {
                 name: 'Binary Lock',
                 description: `BINARY CONVERSION LOCK DETECTED<br><br>
                     Convert to decimal:<br>
-                    1010 1100<br><br>
+                    10101100<br><br>
                     Enter 4-digit answer (pad with zeros)`,
                 type: 'keypad',
                 code: '0172'
